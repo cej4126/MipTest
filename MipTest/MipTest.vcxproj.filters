@@ -4,8 +4,13 @@
     <ClCompile Include="App.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp" />
     <ClCompile Include="WinMain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -17,6 +22,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

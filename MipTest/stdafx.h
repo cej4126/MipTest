@@ -19,6 +19,8 @@
 #include <assert.h>
 #include <memory>
 #include <unordered_map>
+#include <queue>
+#include <bitset>
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
