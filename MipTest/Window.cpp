@@ -42,6 +42,9 @@ Window::Window(int width, int height)
       throw;
    }
 
+   pGfx = std::make_unique<Graphics>(m_hWnd, m_width, m_height);
+   m_graphicActive = true;
+
    ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 
    RAWINPUTDEVICE rawInputDevice;
@@ -58,6 +61,15 @@ Window::Window(int width, int height)
 Window::~Window()
 {
    DestroyWindow(m_hWnd);
+}
+
+Graphics &Window::gfx()
+{
+   if (!pGfx)
+   {
+      throw;
+   }
+   return *pGfx;
 }
 
 std::optional<int> Window::ProcessMessages() noexcept
@@ -102,6 +114,8 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
    {
       case WM_CLOSE:
          m_running = false;
+         pGfx->cleanUp();
+
          PostQuitMessage(0);
          return 0;
       case WM_KILLFOCUS:

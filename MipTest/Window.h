@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Input.h"
+#include "Graphics.h"
 
 class Window
 {
@@ -10,6 +11,8 @@ public:
    Window &operator=(const Window &) = delete;
    static std::optional<int> ProcessMessages() noexcept;
    ~Window();
+
+   Graphics &gfx();
 
    bool isRunning() { return m_running; }
    Input input;
@@ -31,5 +34,7 @@ private:
    bool m_running = true;
    bool m_cursorEnabled = true;
    std::vector<BYTE> m_rawBuffer;
+   std::unique_ptr<Graphics>pGfx;
+   bool m_graphicActive = false;
 };
 

@@ -13,6 +13,9 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -25,6 +28,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
