@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "imgui/imgui.h"
 
 Window::Window(int width, int height)
    :
@@ -72,6 +73,22 @@ Graphics &Window::gfx()
    return *pGfx;
 }
 
+void Window::enableCursor() noexcept
+{
+   m_cursorEnabled = true;
+   showCursor();
+   enableImGuiMouse();
+   freeCursor();
+}
+
+void Window::disableCursor() noexcept
+{
+   m_cursorEnabled = false;
+   hideCursor();
+   disableImGuiMouse();
+   confineCursor();
+}
+
 std::optional<int> Window::ProcessMessages() noexcept
 {
    MSG message;
@@ -119,36 +136,36 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
          PostQuitMessage(0);
          return 0;
       case WM_KILLFOCUS:
-         input.clear();
+         m_input.clear();
          break;
       case WM_ACTIVATE:
          if (!m_cursorEnabled)
          {
             if (wParam & WA_ACTIVE)
             {
-               ConfineCursor();
-               HideCursor();
+               confineCursor();
+               hideCursor();
             }
             else
             {
-               FreeCursor();
-               ShowCursor();
+               freeCursor();
+               showCursor();
             }
          }
          break;
       case WM_KEYDOWN:
       case WM_SYSKEYDOWN:
-         if (!(lParam & 0x40000000) || (input.isAutoRepeatEnable()))
+         if (!(lParam & 0x40000000) || (m_input.isAutoRepeatEnable()))
          {
-            input.onKeyBoardPressed(static_cast<unsigned char>(wParam));
+            m_input.onKeyBoardPressed(static_cast<unsigned char>(wParam));
          }
          break;
       case WM_KEYUP:
       case WM_SYSKEYUP:
-         input.onKeyBoardRelease(static_cast<unsigned char>(wParam));
+         m_input.onKeyBoardRelease(static_cast<unsigned char>(wParam));
          break;
       case WM_CHAR:
-         input.onChar(static_cast<unsigned char>(wParam));
+         m_input.onChar(static_cast<unsigned char>(wParam));
          break;
       case WM_MOUSEMOVE:
          if (m_cursorEnabled)
@@ -156,33 +173,33 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             const POINTS points = MAKEPOINTS(lParam);
             if ((points.x >= 0) && (points.x < m_width) && (points.y >= 0) && (points.y < m_height))
             {
-               input.onMouseMove(points.x, points.y);
-               if (!input.isInWindow())
+               m_input.onMouseMove(points.x, points.y);
+               if (!m_input.isInWindow())
                {
                   SetCapture(m_hWnd);
-                  input.onMouseEnter();
+                  m_input.onMouseEnter();
                }
             }
             else
             {
                if (wParam & (MK_LBUTTON | MK_RBUTTON))
                {
-                  input.onMouseMove(points.x, points.y);
+                  m_input.onMouseMove(points.x, points.y);
                }
                else
                {
                   ReleaseCapture();
-                  input.onMouseLeave();
+                  m_input.onMouseLeave();
                }
             }
          }
          else
          {
-            if (!input.isInWindow())
+            if (!m_input.isInWindow())
             {
                SetCapture(m_hWnd);
-               input.onMouseEnter();
-               HideCursor();
+               m_input.onMouseEnter();
+               hideCursor();
             }
          }
 
@@ -193,52 +210,52 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
          SetForegroundWindow(m_hWnd);
          if (!m_cursorEnabled)
          {
-            ConfineCursor();
-            HideCursor();
+            confineCursor();
+            hideCursor();
          }
 
-         input.onLeftPressed();
+         m_input.onLeftPressed();
          break;
       }
       case WM_RBUTTONDOWN:
       {
-         input.onRightPressed();
+         m_input.onRightPressed();
          break;
       }
       case WM_LBUTTONUP:
       {
          const POINTS points = MAKEPOINTS(lParam);
-         input.onLeftReleased();
+         m_input.onLeftReleased();
          // release mouse if outside of window
          if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
          {
             ReleaseCapture();
-            input.onMouseLeave();
+            m_input.onMouseLeave();
          }
          break;
       }
       case WM_RBUTTONUP:
       {
          const POINTS points = MAKEPOINTS(lParam);
-         input.onRightReleased();
+         m_input.onRightReleased();
          // release mouse if outside of window
          if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
          {
             ReleaseCapture();
-            input.onMouseLeave();
+            m_input.onMouseLeave();
          }
          break;
       }
       case WM_MOUSEWHEEL:
       {
          const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-         input.onWheelDelta(delta);
+         m_input.onWheelDelta(delta);
          break;
       }
 
       case WM_INPUT:
       {
-         if (!input.isRawEnabled())
+         if (!m_input.isRawEnabled())
          {
             break;
          }
@@ -262,7 +279,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
          if (rawInput.header.dwType == RIM_TYPEMOUSE &&
             (rawInput.data.mouse.lLastX != 0 || rawInput.data.mouse.lLastY != 0))
          {
-            input.onRawDelta(rawInput.data.mouse.lLastX, rawInput.data.mouse.lLastY);
+            m_input.onRawDelta(rawInput.data.mouse.lLastX, rawInput.data.mouse.lLastY);
          }
          break;
       }
@@ -274,7 +291,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-void Window::ConfineCursor() noexcept
+void Window::confineCursor() noexcept
 {
    RECT rect;
    GetClientRect(m_hWnd, &rect);
@@ -282,17 +299,27 @@ void Window::ConfineCursor() noexcept
    ClipCursor(&rect);
 }
 
-void Window::FreeCursor() noexcept
+void Window::freeCursor() noexcept
 {
    ClipCursor(nullptr);
 }
 
-void Window::ShowCursor() noexcept
+void Window::showCursor() noexcept
 {
    while (::ShowCursor(TRUE) < 0);
 }
 
-void Window::HideCursor() noexcept
+void Window::hideCursor() noexcept
 {
    while (::ShowCursor(FALSE) >= 0);
+}
+
+void Window::enableImGuiMouse() noexcept
+{
+   ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+}
+
+void Window::disableImGuiMouse() noexcept
+{
+   ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 }

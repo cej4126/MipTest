@@ -14,18 +14,23 @@ public:
 
    Graphics &gfx();
 
+   void enableCursor() noexcept;
+   void disableCursor() noexcept;
+   bool isCursorEnabled() const noexcept { return m_cursorEnabled; }
+
    bool isRunning() { return m_running; }
-   Input input;
+   Input m_input;
 
 private:
    static LRESULT CALLBACK HandleMessageInit(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
    static LRESULT CALLBACK HandleMessageMain(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
    LRESULT  HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-   void ConfineCursor() noexcept;
-   void FreeCursor() noexcept;
-   void ShowCursor() noexcept;
-   void HideCursor() noexcept;
-
+   void confineCursor() noexcept;
+   void freeCursor() noexcept;
+   void showCursor() noexcept;
+   void hideCursor() noexcept;
+   void enableImGuiMouse() noexcept;
+   void disableImGuiMouse() noexcept;
    int m_width;
    int m_height;
    HWND m_hWnd;

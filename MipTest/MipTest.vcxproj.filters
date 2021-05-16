@@ -16,6 +16,41 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_dx11.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawPictureCube.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawFunction.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Object.cpp">
+      <Filter>Source\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Bindable.cpp">
+      <Filter>Source\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Source\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -33,6 +68,47 @@
     <ClInclude Include="Graphics.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_dx11.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawPictureCube.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawFunction.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="Object.h">
+      <Filter>Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Bindable.h">
+      <Filter>Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
@@ -41,5 +117,33 @@
     <Filter Include="Source">
       <UniqueIdentifier>{0362c349-42c2-4fe9-9d31-eb7e50a1122f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{950f395d-cf23-409d-ac79-f4498f683800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Bindable">
+      <UniqueIdentifier>{39c1a244-8269-433c-b940-720edb8434a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Bindable">
+      <UniqueIdentifier>{bcd00ba1-8113-490f-bfd8-a6ea30fd9615}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{ea37624c-ff81-4097-9e89-bcbaf21290ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Include">
+      <UniqueIdentifier>{d5c5b9cc-98df-4fb3-ba68-4de52b811ea0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="TexturePS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="TextureVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Transform.hlsli">
+      <Filter>Shader\Include</Filter>
+    </None>
   </ItemGroup>
 </Project>

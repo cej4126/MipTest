@@ -41,3 +41,6 @@ inline void ThrowIfFailed(HRESULT hr)
       throw;
    }
 }
+
+using namespace DirectX;
+using namespace Microsoft::WRL;
