@@ -9,7 +9,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
    m_width(width),
    m_height(height)
 {
-   m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+   //m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
 #if defined (_DEBUG)
    ComPtr <ID3D12Debug> m_debugInterface;
@@ -41,10 +41,10 @@ void Graphics::runCommandList()
    // Run the initial command list
    m_commandList->Close();
    ID3D12CommandList *ppCommandLists[] = { m_commandList.Get() };
-   m_comandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+   m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
    m_fenceValues[m_frameIndex]++;
-   ThrowIfFailed(m_comandQueue->Signal(m_fences[m_frameIndex].Get(), m_fenceValues[m_frameIndex]));
+   ThrowIfFailed(m_commandQueue->Signal(m_fences[m_frameIndex].Get(), m_fenceValues[m_frameIndex]));
 }
 
 void Graphics::waitForPreviousFrame()
@@ -92,7 +92,7 @@ void Graphics::onRenderBegin()
    m_commandList->OMSetRenderTargets(1, &renderTargetDesc, FALSE, &dsvHandle);
 
    // Record commands.
-   const float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+   const float clearColor[] = { 1.1f, 0.1f, 0.1f, 1.0f };
    m_commandList->ClearRenderTargetView(renderTargetDesc, clearColor, 0, nullptr);
    m_commandList->ClearDepthStencilView(m_dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
@@ -113,7 +113,7 @@ void Graphics::drawCommandList()
 
    // Run the command list
    ID3D12CommandList *ppCommandLists[] = { m_commandList.Get() };
-   m_comandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+   m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 }
 
 void Graphics::onRenderEnd()
@@ -121,7 +121,7 @@ void Graphics::onRenderEnd()
    m_x11Onx12Device->ReleaseWrappedResources(m_x11WrappedBackBuffers[m_frameIndex].GetAddressOf(), 1);
 
    m_x11Context->Flush();
-   ThrowIfFailed(m_comandQueue->Signal(m_fences[m_frameIndex].Get(), m_fenceValues[m_frameIndex]));
+   ThrowIfFailed(m_commandQueue->Signal(m_fences[m_frameIndex].Get(), m_fenceValues[m_frameIndex]));
 
    // Present the frame.
    ThrowIfFailed(m_swapChain->Present(1, 0));
@@ -129,14 +129,78 @@ void Graphics::onRenderEnd()
 
 void Graphics::cleanUp()
 {
+   // wait for the gpu to finish all frames
+   for (int i = 0; i < m_bufferCount; ++i)
+   {
+      m_frameIndex = i;
+      waitForPreviousFrame();
+   }
+
+   // Wait for windows to finish
+   for (int i = 0; i < m_bufferCount; ++i)
+   {
+      m_frameIndex = i;
+      ThrowIfFailed(m_commandQueue->Signal(m_fences[m_frameIndex].Get(), m_fenceValues[m_frameIndex]));
+      waitForPreviousFrame();
+   }
 }
 
-void Graphics::createMatrixConstant(UINT count)
+void Graphics::createMatrixConstant(UINT index)
 {
+   int ConstantBufferPerObjectAlignedSize = (sizeof(XMMATRIX) + 255) & ~255;
+
+   // Matrix Constant buffer
+   D3D12_HEAP_PROPERTIES constantHeapUpload = {};
+   constantHeapUpload.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+   constantHeapUpload.CreationNodeMask = 1;
+   constantHeapUpload.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+   constantHeapUpload.Type = D3D12_HEAP_TYPE_UPLOAD;
+   constantHeapUpload.VisibleNodeMask = 1;
+
+   D3D12_RESOURCE_DESC constantHeapDesc = {};
+   constantHeapDesc.Alignment = 0;
+   constantHeapDesc.DepthOrArraySize = 1;
+   constantHeapDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+   constantHeapDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+   constantHeapDesc.Format = DXGI_FORMAT_UNKNOWN;
+   constantHeapDesc.Height = 1;
+   constantHeapDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+   constantHeapDesc.SampleDesc.Count = 1;
+   constantHeapDesc.SampleDesc.Quality = 0;
+   constantHeapDesc.Width = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+   constantHeapDesc.MipLevels = 1;
+
+   ThrowIfFailed(m_device->CreateCommittedResource(
+      &constantHeapUpload,
+      D3D12_HEAP_FLAG_NONE,
+      &constantHeapDesc,
+      D3D12_RESOURCE_STATE_GENERIC_READ,
+      nullptr,
+      IID_PPV_ARGS(&m_matrixBufferUploadHeaps)));
+
+   D3D12_RANGE readRange;
+   readRange.Begin = 0;
+   readRange.End = 0;
+   ThrowIfFailed(m_matrixBufferUploadHeaps->Map(0, &readRange, reinterpret_cast<void **>(&m_matrixBufferGPUAddress)));
 }
 
 void Graphics::setMatrixConstant(UINT index, TransformMatrix matrix, int rootVS, int rootPS) noexcept
 {
+   int ConstantBufferPerObjectAlignedSize = (sizeof(matrix) + 255) & ~255;
+
+   if (rootVS >= 0)
+   {
+      m_commandList->SetGraphicsRootConstantBufferView(rootVS,
+         m_matrixBufferUploadHeaps->GetGPUVirtualAddress() + index * ConstantBufferPerObjectAlignedSize);
+   }
+
+   if (rootPS >= 0)
+   {
+      m_commandList->SetGraphicsRootConstantBufferView(rootPS,
+         m_matrixBufferUploadHeaps->GetGPUVirtualAddress() + index * ConstantBufferPerObjectAlignedSize);
+   }
+
+   memcpy(m_matrixBufferGPUAddress + index * ConstantBufferPerObjectAlignedSize, &matrix, sizeof(matrix));
 }
 
 void Graphics::loadDevice()
@@ -187,7 +251,7 @@ void Graphics::loadDevice()
    queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-   ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_comandQueue.ReleaseAndGetAddressOf())));
+   ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())));
 
    // Create Swap Chains
    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -203,7 +267,7 @@ void Graphics::loadDevice()
    swapChainDesc.Scaling = DXGI_SCALING_NONE;
    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
    swapChainDesc.Flags = 0;
-   ThrowIfFailed(m_dxgiFactory4->CreateSwapChainForHwnd(m_comandQueue.Get(),
+   ThrowIfFailed(m_dxgiFactory4->CreateSwapChainForHwnd(m_commandQueue.Get(),
       m_hWnd,
       &swapChainDesc,
       nullptr,
@@ -357,7 +421,7 @@ void Graphics::loadX11OnX12Base()
    ThrowIfFailed(D3D11On12CreateDevice(m_device.Get(),
       x11DeviceFlags,
       nullptr, 0,
-      reinterpret_cast<IUnknown **>(m_comandQueue.GetAddressOf()),
+      reinterpret_cast<IUnknown **>(m_commandQueue.GetAddressOf()),
       1, 0, &m_x11Device, &m_x11Context, nullptr));
 
    // Query the X11OnX12 device from the X11 device

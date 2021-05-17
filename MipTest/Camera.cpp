@@ -39,7 +39,7 @@ void Camera::createControlWindow() noexcept
 
 void Camera::reset() noexcept
 {
-   m_position = { -13.5f, 6.0f, 3.5f };
+   m_position = { -7.5f, 0.0f, 0.0f };
    m_pitch = 0.0f;
    m_yaw = PI / 2.0f;
 }

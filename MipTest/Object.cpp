@@ -25,7 +25,12 @@ std::string Object::getUID() const noexcept
 
 void Object::Bind(Graphics &gfx) noexcept
 {
+   m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+   m_commandList->SetPipelineState(m_pipelineState.Get());
 
+   m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+   m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+   m_commandList->IASetIndexBuffer(&m_indexBufferView);
 }
 
 void Object::createRootSignature()
@@ -309,5 +314,4 @@ void Object::loadIndicesBuffer(const std::vector<unsigned short> indices)
    m_indexBufferView.BufferLocation = m_indexDefaultBuffer->GetGPUVirtualAddress();
    m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
    m_indexBufferView.SizeInBytes = indicesBufferSize;
-
 }

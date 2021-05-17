@@ -34,7 +34,7 @@ public:
    XMMATRIX getCamera() const noexcept { return m_cameraTransform; }
    void setProjection(FXMMATRIX projection) noexcept { m_projection = projection; }
    XMMATRIX getProjection() const noexcept { return m_projection; }
-   void createMatrixConstant(UINT count);
+   void createMatrixConstant(UINT index);
    void setMatrixConstant(UINT index, TransformMatrix matrix, int rootVS, int rootPS) noexcept;
 
    UINT64 UpdateSubresource(
@@ -61,7 +61,7 @@ protected:
    ComPtr <IDXGIFactory4> m_dxgiFactory4;
    //ComPtr <IDXGIAdapter3> m_adapter;
    ComPtr <ID3D12Device> m_device;
-   ComPtr <ID3D12CommandQueue>m_comandQueue;
+   ComPtr <ID3D12CommandQueue>m_commandQueue;
    ComPtr <IDXGISwapChain3> m_swapChain;
    ComPtr <IDXGISwapChain1> m_swapChain1;
    ComPtr <ID3D12Resource> m_swapChainBuffers[m_bufferCount];
@@ -82,6 +82,9 @@ protected:
    ComPtr <ID3D11DepthStencilState> m_x11DepthStencelState;
 
 private:
+   ComPtr <ID3D12Resource> m_matrixBufferUploadHeaps;
+   UINT8 *m_matrixBufferGPUAddress;
+
    void loadDevice();
    void loadBase();
    void loadDepent();
@@ -92,6 +95,6 @@ private:
    void loadX11OnX12Base();
    void onRenderX11();
 
-   float m_aspectRatio;
+   //float m_aspectRatio;
 };
 

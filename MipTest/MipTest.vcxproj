@@ -76,9 +76,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)dxtex\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)assimp\bin\x64-Release\lib;$(LibraryPath)</LibraryPath>
-    <LibraryWPath>$(LibraryWPath)</LibraryWPath>
+    <LibraryWPath>$(ProjectDir)dxtex\bin;$(LibraryWPath)</LibraryWPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -154,6 +154,14 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
+    <ClInclude Include="dxtex\include\BC.h" />
+    <ClInclude Include="dxtex\include\BCDirectCompute.h" />
+    <ClInclude Include="dxtex\include\d3dx12.h" />
+    <ClInclude Include="dxtex\include\DDS.h" />
+    <ClInclude Include="dxtex\include\DirectXTex.h" />
+    <ClInclude Include="dxtex\include\DirectXTexP.h" />
+    <ClInclude Include="dxtex\include\filters.h" />
+    <ClInclude Include="dxtex\include\scoped.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -167,6 +175,8 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -186,6 +196,8 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WinMain.cpp" />
@@ -207,7 +219,11 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="dxtex\include\DirectXTex.inl" />
     <None Include="Transform.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="dxtex\bin\DirectXTex.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

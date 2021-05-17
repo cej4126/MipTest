@@ -12,6 +12,7 @@ namespace Bind
       bool isInitialized() { return m_initualized; }
       void setInitialized() { m_initualized = true; }
       void setIndex(int index) { m_index = index; }
+      int getIndex() { return m_index; }
    private:
       bool m_initualized = false;
       int m_index = -1;

@@ -5,16 +5,16 @@
 
 App::App()
    :
-   m_window(1000, 752)
+   m_window(1280, 720)
 {
    m_lastTime = std::chrono::steady_clock::now();
 
-   cube = std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\DirectX12Charles\\Images\\280893.jpg");
+   cube = std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg");
 
    m_window.gfx().createMatrixConstant(m_drawCount);
 
    m_window.gfx().runCommandList();
-   m_window.gfx().setProjection(XMMatrixPerspectiveFovLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f));
+   m_window.gfx().setProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f));
 }
 
 int App::Go()
@@ -107,12 +107,12 @@ void App::DoFrame()
       }
    }
 
-   spawnSimulation();
+//   spawnSimulation();
 
-   m_camera.createControlWindow();
+//   m_camera.createControlWindow();
 
-   ImGui::Render();
-   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+//   ImGui::Render();
+//   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
    m_window.gfx().drawCommandList();
 
