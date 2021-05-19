@@ -94,8 +94,8 @@ private:
    void loadX11OnX12Base();
    void onRenderX11();
 
-   // D2 Write
-   void loadBase2D();
+   // 2D Write
+   void load2DBase();
    ComPtr<IDXGIDevice> m_dxgiDevice;
    ComPtr<ID2D1Bitmap1> m_x11d2dRenderTargets[Buffer_Count];
    ComPtr<ID2D1DeviceContext2> m_x11d2dDeviceContext;

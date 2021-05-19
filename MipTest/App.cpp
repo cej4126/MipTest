@@ -107,18 +107,16 @@ void App::DoFrame()
       }
    }
 
-//   spawnSimulation();
+   spawnSimulation();
 
-//   m_camera.createControlWindow();
+   m_camera.createControlWindow();
 
-//   ImGui::Render();
-//   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+   ImGui::Render();
+   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
    m_window.gfx().drawCommandList();
 
    m_window.gfx().onRenderEnd();
-
-
 }
 
 float App::TimeMark()

@@ -24,7 +24,7 @@ Window::Window(int width, int height)
    RegisterClassEx(&windowClass);
 
    RECT windowRect;
-   windowRect.left = 120;
+   windowRect.left = 100;
    windowRect.right = width + windowRect.left;
    windowRect.top = 100;
    windowRect.bottom = height + windowRect.top;
@@ -43,10 +43,10 @@ Window::Window(int width, int height)
       throw;
    }
 
+   ShowWindow(m_hWnd, SW_SHOWDEFAULT);
+
    pGfx = std::make_unique<Graphics>(m_hWnd, m_width, m_height);
    m_graphicActive = true;
-
-   ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 
    RAWINPUTDEVICE rawInputDevice;
    rawInputDevice.dwFlags = 0;
@@ -125,169 +125,216 @@ LRESULT CALLBACK Window::HandleMessageMain(HWND hwnd, UINT msg, WPARAM wParam, L
    return pWindow->HandleMsg(hwnd, msg, wParam, lParam);
 }
 
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-   switch (msg)
+   if (ImGui_ImplWin32_WndProcHandler(m_hWnd, msg, wParam, lParam))
    {
-      case WM_CLOSE:
-         m_running = false;
-         pGfx->cleanUp();
-
-         PostQuitMessage(0);
-         return 0;
-      case WM_KILLFOCUS:
-         m_input.clear();
-         break;
-      case WM_ACTIVATE:
-         if (!m_cursorEnabled)
-         {
-            if (wParam & WA_ACTIVE)
+      return true;
+   }
+   bool imguiActive = false;
+   if (m_graphicActive)
+   {
+      const auto &imio = ImGui::GetIO();
+      switch (msg)
+      {
+         case WM_KEYDOWN:
+         case WM_SYSKEYDOWN:
+         case WM_KEYUP:
+         case WM_SYSKEYUP:
+         case WM_CHAR:
+         case WM_MOUSEMOVE:
+         case WM_LBUTTONDOWN:
+         case WM_RBUTTONDOWN:
+         case WM_LBUTTONUP:
+         case WM_RBUTTONUP:
+         case WM_MOUSEWHEEL:
+            // stifle this keyboard message if imgui wants to capture
+            if (imio.WantCaptureKeyboard)
             {
-               confineCursor();
-               hideCursor();
+               imguiActive = true;
+            }
+            break;
+
+            //case WM_LBUTTONDOWN:
+            //{
+            //   // Not sure about the SetForegroundWindow
+            //   SetForegroundWindow(hWnd);
+            //   if (imio.WantCaptureKeyboard)
+            //   {
+            //      imguiActive = true;
+            //   }
+            //   break;
+      }
+   }
+
+   // If imGui does not want the input
+   if (!imguiActive)
+   {
+      switch (msg)
+      {
+         case WM_CLOSE:
+            m_running = false;
+            pGfx->cleanUp();
+
+            PostQuitMessage(0);
+            return 0;
+         case WM_KILLFOCUS:
+            m_input.clear();
+            break;
+         case WM_ACTIVATE:
+            if (!m_cursorEnabled)
+            {
+               if (wParam & WA_ACTIVE)
+               {
+                  confineCursor();
+                  hideCursor();
+               }
+               else
+               {
+                  freeCursor();
+                  showCursor();
+               }
+            }
+            break;
+         case WM_KEYDOWN:
+         case WM_SYSKEYDOWN:
+            if (!(lParam & 0x40000000) || (m_input.isAutoRepeatEnable()))
+            {
+               m_input.onKeyBoardPressed(static_cast<unsigned char>(wParam));
+            }
+            break;
+         case WM_KEYUP:
+         case WM_SYSKEYUP:
+            m_input.onKeyBoardRelease(static_cast<unsigned char>(wParam));
+            break;
+         case WM_CHAR:
+            m_input.onChar(static_cast<unsigned char>(wParam));
+            break;
+         case WM_MOUSEMOVE:
+            if (m_cursorEnabled)
+            {
+               const POINTS points = MAKEPOINTS(lParam);
+               if ((points.x >= 0) && (points.x < m_width) && (points.y >= 0) && (points.y < m_height))
+               {
+                  m_input.onMouseMove(points.x, points.y);
+                  if (!m_input.isInWindow())
+                  {
+                     SetCapture(m_hWnd);
+                     m_input.onMouseEnter();
+                  }
+               }
+               else
+               {
+                  if (wParam & (MK_LBUTTON | MK_RBUTTON))
+                  {
+                     m_input.onMouseMove(points.x, points.y);
+                  }
+                  else
+                  {
+                     ReleaseCapture();
+                     m_input.onMouseLeave();
+                  }
+               }
             }
             else
             {
-               freeCursor();
-               showCursor();
-            }
-         }
-         break;
-      case WM_KEYDOWN:
-      case WM_SYSKEYDOWN:
-         if (!(lParam & 0x40000000) || (m_input.isAutoRepeatEnable()))
-         {
-            m_input.onKeyBoardPressed(static_cast<unsigned char>(wParam));
-         }
-         break;
-      case WM_KEYUP:
-      case WM_SYSKEYUP:
-         m_input.onKeyBoardRelease(static_cast<unsigned char>(wParam));
-         break;
-      case WM_CHAR:
-         m_input.onChar(static_cast<unsigned char>(wParam));
-         break;
-      case WM_MOUSEMOVE:
-         if (m_cursorEnabled)
-         {
-            const POINTS points = MAKEPOINTS(lParam);
-            if ((points.x >= 0) && (points.x < m_width) && (points.y >= 0) && (points.y < m_height))
-            {
-               m_input.onMouseMove(points.x, points.y);
                if (!m_input.isInWindow())
                {
                   SetCapture(m_hWnd);
                   m_input.onMouseEnter();
+                  hideCursor();
                }
             }
-            else
-            {
-               if (wParam & (MK_LBUTTON | MK_RBUTTON))
-               {
-                  m_input.onMouseMove(points.x, points.y);
-               }
-               else
-               {
-                  ReleaseCapture();
-                  m_input.onMouseLeave();
-               }
-            }
-         }
-         else
+
+            break;
+
+         case WM_LBUTTONDOWN:
          {
-            if (!m_input.isInWindow())
+            SetForegroundWindow(m_hWnd);
+            if (!m_cursorEnabled)
             {
-               SetCapture(m_hWnd);
-               m_input.onMouseEnter();
+               confineCursor();
                hideCursor();
             }
-         }
 
-         break;
-
-      case WM_LBUTTONDOWN:
-      {
-         SetForegroundWindow(m_hWnd);
-         if (!m_cursorEnabled)
-         {
-            confineCursor();
-            hideCursor();
+            m_input.onLeftPressed();
+            break;
          }
-
-         m_input.onLeftPressed();
-         break;
-      }
-      case WM_RBUTTONDOWN:
-      {
-         m_input.onRightPressed();
-         break;
-      }
-      case WM_LBUTTONUP:
-      {
-         const POINTS points = MAKEPOINTS(lParam);
-         m_input.onLeftReleased();
-         // release mouse if outside of window
-         if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
+         case WM_RBUTTONDOWN:
          {
-            ReleaseCapture();
-            m_input.onMouseLeave();
+            m_input.onRightPressed();
+            break;
          }
-         break;
-      }
-      case WM_RBUTTONUP:
-      {
-         const POINTS points = MAKEPOINTS(lParam);
-         m_input.onRightReleased();
-         // release mouse if outside of window
-         if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
+         case WM_LBUTTONUP:
          {
-            ReleaseCapture();
-            m_input.onMouseLeave();
+            const POINTS points = MAKEPOINTS(lParam);
+            m_input.onLeftReleased();
+            // release mouse if outside of window
+            if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
+            {
+               ReleaseCapture();
+               m_input.onMouseLeave();
+            }
+            break;
          }
-         break;
-      }
-      case WM_MOUSEWHEEL:
-      {
-         const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-         m_input.onWheelDelta(delta);
-         break;
-      }
-
-      case WM_INPUT:
-      {
-         if (!m_input.isRawEnabled())
+         case WM_RBUTTONUP:
          {
+            const POINTS points = MAKEPOINTS(lParam);
+            m_input.onRightReleased();
+            // release mouse if outside of window
+            if (points.x < 0 || points.x >= m_width || points.y < 0 || points.y >= m_height)
+            {
+               ReleaseCapture();
+               m_input.onMouseLeave();
+            }
+            break;
+         }
+         case WM_MOUSEWHEEL:
+         {
+            const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            m_input.onWheelDelta(delta);
             break;
          }
 
-         UINT size;
-         // first get the size of the input data
-         if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1)
+         case WM_INPUT:
          {
-            // bail msg processing if error
+            if (!m_input.isRawEnabled())
+            {
+               break;
+            }
+
+            UINT size;
+            // first get the size of the input data
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1)
+            {
+               // bail msg processing if error
+               break;
+            }
+            m_rawBuffer.resize(size);
+            // read in the input data
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, m_rawBuffer.data(), &size, sizeof(RAWINPUTHEADER)) != size)
+            {
+               // bail msg processing if error
+               break;
+            }
+            // process the raw input data
+            auto &rawInput = reinterpret_cast<const RAWINPUT &>(*m_rawBuffer.data());
+            if (rawInput.header.dwType == RIM_TYPEMOUSE &&
+               (rawInput.data.mouse.lLastX != 0 || rawInput.data.mouse.lLastY != 0))
+            {
+               m_input.onRawDelta(rawInput.data.mouse.lLastX, rawInput.data.mouse.lLastY);
+            }
             break;
          }
-         m_rawBuffer.resize(size);
-         // read in the input data
-         if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, m_rawBuffer.data(), &size, sizeof(RAWINPUTHEADER)) != size)
-         {
-            // bail msg processing if error
+
+         default:
             break;
-         }
-         // process the raw input data
-         auto &rawInput = reinterpret_cast<const RAWINPUT &>(*m_rawBuffer.data());
-         if (rawInput.header.dwType == RIM_TYPEMOUSE &&
-            (rawInput.data.mouse.lLastX != 0 || rawInput.data.mouse.lLastY != 0))
-         {
-            m_input.onRawDelta(rawInput.data.mouse.lLastX, rawInput.data.mouse.lLastY);
-         }
-         break;
       }
-
-
-      default:
-         break;
    }
+
    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
