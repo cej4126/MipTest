@@ -59,6 +59,7 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="d2write.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -149,6 +150,7 @@
     <ClInclude Include="dxtex\include\scoped.h">
       <Filter>dxtex</Filter>
     </ClInclude>
+    <ClInclude Include="d2write.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

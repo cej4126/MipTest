@@ -152,6 +152,7 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="Bindable.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="d2write.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
     <ClInclude Include="dxtex\include\BC.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="d2write.cpp" />
     <ClCompile Include="DrawFunction.cpp" />
     <ClCompile Include="DrawPictureCube.cpp" />
     <ClCompile Include="Graphics.cpp" />

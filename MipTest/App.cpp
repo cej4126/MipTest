@@ -9,7 +9,15 @@ App::App()
 {
    m_lastTime = std::chrono::steady_clock::now();
 
-   cube = std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg");
+   m_d2writeItem = std::make_unique<d2write>(m_window.gfx());
+
+//   cube = std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg");
+//   cube->setPos(XMFLOAT3(1.0f, 4.0f, 1.0f));
+   m_drawItems.push_back(std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
+   m_drawItems.at(size_t((int)m_drawCount-1))->setPos(XMFLOAT3(0.0f, 0.0f, 4.0f));
+   
+   m_drawItems.push_back(std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
+   m_drawItems.at(size_t((int)m_drawCount - 1))->setPos(XMFLOAT3(0.0f, 0.0f, -4.0f));
 
    m_window.gfx().createMatrixConstant(m_drawCount);
 
@@ -50,6 +58,14 @@ void App::DoFrame()
    {
       cube->draw(m_window.gfx());
    }
+
+   for (auto &b : m_drawItems)
+   {
+      b->update(deltaTime);
+      b->draw(m_window.gfx());
+   }
+
+   m_d2writeItem->draw();
 
    // Process input
    while (auto e = m_window.m_input.readKey())

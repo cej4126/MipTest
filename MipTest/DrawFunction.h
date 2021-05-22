@@ -13,6 +13,7 @@ public:
    void draw(Graphics &gfx) const noexcept;
    virtual void update(float deltaTime) noexcept {};
    virtual XMMATRIX getTransformXM() const noexcept = 0;
+   virtual void setPos(DirectX::XMFLOAT3 pos) noexcept {};
 
 protected:
    void addBind(std::shared_ptr<Bind::Bindable> bind) noexcept;

@@ -42,6 +42,10 @@ public:
       _In_ ID3D12Resource *pIntermediate,
       _In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA *pSrcData);
 
+   // d2write
+   ID2D1DeviceContext2 *get2dContext() noexcept { return m_x11d2dDeviceContext.Get(); }
+   IDWriteFactory *get2dWriteFactory() noexcept { return m_dWriteFactory.Get(); }
+
 protected:
    static const UINT Buffer_Count = 3;
    HWND m_hWnd;
