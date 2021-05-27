@@ -58,8 +58,12 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="d2write.cpp" />
+    <ClCompile Include="d2write.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -125,7 +129,6 @@
     <ClInclude Include="Shape.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Surface.h" />
     <ClInclude Include="dxtex\include\BC.h">
       <Filter>dxtex</Filter>
     </ClInclude>
@@ -150,7 +153,15 @@
     <ClInclude Include="dxtex\include\scoped.h">
       <Filter>dxtex</Filter>
     </ClInclude>
-    <ClInclude Include="d2write.h" />
+    <ClInclude Include="DirectXTex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="d2write.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
@@ -190,8 +201,8 @@
     <None Include="Transform.hlsli">
       <Filter>Shader\Include</Filter>
     </None>
-    <None Include="dxtex\include\DirectXTex.inl">
-      <Filter>dxtex</Filter>
+    <None Include="DirectXTex.inl">
+      <Filter>Header</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

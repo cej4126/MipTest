@@ -107,13 +107,14 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3d12.lib;dxgi.lib;DirectXTex.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\MyPrograms\DirectX12_Programs\MipTest\MipTest\dxtex\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,6 +154,7 @@
     <ClInclude Include="Bindable.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="d2write.h" />
+    <ClInclude Include="DirectXTex.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
     <ClInclude Include="dxtex\include\BC.h" />
@@ -221,7 +223,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="dxtex\include\DirectXTex.inl" />
+    <None Include="DirectXTex.inl" />
     <None Include="Transform.hlsli" />
   </ItemGroup>
   <ItemGroup>

@@ -37,11 +37,6 @@ public:
    void createMatrixConstant(UINT index);
    void setMatrixConstant(UINT index, TransformMatrix matrix, int rootVS, int rootPS) noexcept;
 
-   UINT64 UpdateSubresource(
-      _In_ ID3D12Resource *pDestinationResource,
-      _In_ ID3D12Resource *pIntermediate,
-      _In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA *pSrcData);
-
    // d2write
    ID2D1DeviceContext2 *get2dContext() noexcept { return m_x11d2dDeviceContext.Get(); }
    IDWriteFactory *get2dWriteFactory() noexcept { return m_dWriteFactory.Get(); }

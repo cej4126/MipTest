@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "Surface.h"
+#include "d3dx12.h"
 
 Texture::Texture(Graphics &gfx, std::string tag)
    :
@@ -101,10 +102,17 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
    TextureData.RowPitch = surface.GetWidth() * sizeof(Surface::Color);
    TextureData.SlicePitch = surface.GetWidth() * sizeof(Surface::Color) * surface.GetHeight();
 
-   m_gfx.UpdateSubresource(
-      m_textureBuffers[slot].Get(),
-      m_textureBufferUploadHeaps[slot].Get(),
-      &TextureData); // pSrcData
+   //m_gfx.UpdateSubresource(
+   //   m_textureBuffers[slot].Get(),
+   //   m_textureBufferUploadHeaps[slot].Get(),
+   //   &TextureData); // pSrcData
+
+      //m_gfx.UpdateSubresource(
+   //   m_indexDefaultBuffer.Get(),
+   //   m_indexUploadBuffer.Get(),
+   //   &indexData); // pSrcData
+   UpdateSubresources<1>(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, 1, &TextureData);
+
 
    D3D12_RESOURCE_BARRIER resourceBarrier;
    resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

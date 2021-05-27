@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "d3dx12.h"
 
 Object::Object(Graphics &gfx, std::string tag)
    :
@@ -223,10 +224,17 @@ void Object::loadVerticsBuffer(const std::vector<Shape::VertexTexture> vertices)
    vertexData.SlicePitch = vertexBufferSize;
 
    // Add the copy to the command list
-   m_gfx.UpdateSubresource(
-      m_vertexDefaultBuffer.Get(),
-      m_vertexUploadBuffer.Get(),
-      &vertexData); // pSrcData
+   //m_gfx.UpdateSubresource(
+   //   m_vertexDefaultBuffer.Get(),
+   //   m_vertexUploadBuffer.Get(),
+   //   &vertexData); // pSrcData
+
+   UpdateSubresources<1>(m_commandList, m_vertexDefaultBuffer.Get(), m_vertexUploadBuffer.Get(), 0, 0, 1, &vertexData);
+
+   //UpdateSubresource(
+   //   m_vertexDefaultBuffer.Get(),
+   //   m_vertexUploadBuffer.Get(),
+   //   &vertexData); // pSrcData
 
    D3D12_RESOURCE_BARRIER resourceBarrier;
    resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -297,10 +305,11 @@ void Object::loadIndicesBuffer(const std::vector<unsigned short> indices)
    indexData.RowPitch = indicesBufferSize;
    indexData.SlicePitch = indicesBufferSize;
 
-   m_gfx.UpdateSubresource(
-      m_indexDefaultBuffer.Get(),
-      m_indexUploadBuffer.Get(),
-      &indexData); // pSrcData
+   //m_gfx.UpdateSubresource(
+   //   m_indexDefaultBuffer.Get(),
+   //   m_indexUploadBuffer.Get(),
+   //   &indexData); // pSrcData
+   UpdateSubresources<1>(m_commandList, m_indexDefaultBuffer.Get(), m_indexUploadBuffer.Get(), 0, 0, 1, &indexData);
 
    D3D12_RESOURCE_BARRIER resourceBarrier;
    resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
