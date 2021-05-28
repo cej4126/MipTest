@@ -34,9 +34,6 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="DrawPictureCube.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="DrawFunction.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -64,6 +61,13 @@
     <ClCompile Include="Surface.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="DrawPictureCube.cpp">
+      <Filter>Source\Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawPictureCubeTex.cpp">
+      <Filter>Source\Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMipmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -104,12 +108,6 @@
     </ClInclude>
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawPictureCube.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawFunction.h">
-      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>Header\Bindable</Filter>
@@ -153,15 +151,25 @@
     <ClInclude Include="dxtex\include\scoped.h">
       <Filter>dxtex</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXTex.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="d2write.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Surface.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="DrawPictureCubeTex.h">
+      <Filter>Header\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawPictureCube.h">
+      <Filter>Header\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawFunction.h">
+      <Filter>Header\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXTex.h">
+      <Filter>dxtex</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMipmap.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
@@ -188,6 +196,12 @@
     <Filter Include="dxtex">
       <UniqueIdentifier>{c2f3f01c-56f7-4c6e-bca3-ad993524e7eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Draw">
+      <UniqueIdentifier>{c013c532-5d30-45ff-8c7e-aedfd421832b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Draw">
+      <UniqueIdentifier>{3004996b-2afc-471e-bfe2-6ef3ced257b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="TexturePS.hlsl">
@@ -202,7 +216,7 @@
       <Filter>Shader\Include</Filter>
     </None>
     <None Include="DirectXTex.inl">
-      <Filter>Header</Filter>
+      <Filter>dxtex</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

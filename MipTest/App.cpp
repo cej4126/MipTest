@@ -16,7 +16,7 @@ App::App()
    m_drawItems.push_back(std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
    m_drawItems.at(size_t((size_t)m_drawCount - 1))->setPos(XMFLOAT3(0.0f, 0.0f, 2.0f));
 
-   m_drawItems.push_back(std::make_unique<DrawPictureCube>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
+   m_drawItems.push_back(std::make_unique<DrawPictureCubeTex>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
    m_drawItems.at(size_t((size_t)m_drawCount - 1))->setPos(XMFLOAT3(0.0f, 0.0f, -2.0f));
 
    m_window.gfx().createMatrixConstant(m_drawCount);

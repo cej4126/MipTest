@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Window.h"
 #include "DrawPictureCube.h"
+#include "DrawPictureCubeTex.h"
 #include "Camera.h"
 #include "d2write.h"
 

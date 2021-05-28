@@ -157,6 +157,7 @@
     <ClInclude Include="DirectXTex.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
+    <ClInclude Include="DrawPictureCubeTex.h" />
     <ClInclude Include="dxtex\include\BC.h" />
     <ClInclude Include="dxtex\include\BCDirectCompute.h" />
     <ClInclude Include="dxtex\include\d3dx12.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureMipmap.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -190,6 +192,7 @@
     <ClCompile Include="d2write.cpp" />
     <ClCompile Include="DrawFunction.cpp" />
     <ClCompile Include="DrawPictureCube.cpp" />
+    <ClCompile Include="DrawPictureCubeTex.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -202,6 +205,7 @@
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureMipmap.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WinMain.cpp" />

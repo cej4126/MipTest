@@ -1,8 +1,8 @@
-#include "Texture.h"
+#include "TextureMipmap.h"
 #include "Surface.h"
 #include "d3dx12.h"
 
-Texture::Texture(Graphics &gfx, std::string tag)
+TextureMipmap::TextureMipmap(Graphics &gfx, std::string tag)
    :
    m_gfx(gfx),
    m_device(gfx.getDevice()),
@@ -10,22 +10,22 @@ Texture::Texture(Graphics &gfx, std::string tag)
 {
 }
 
-std::shared_ptr<Texture> Texture::resolve(Graphics &gfx, const std::string &tag)
+std::shared_ptr<TextureMipmap> TextureMipmap::resolve(Graphics &gfx, const std::string &tag)
 {
-   return Bind::BindableCodex::resolve<Texture>(gfx, tag);
+   return Bind::BindableCodex::resolve<TextureMipmap>(gfx, tag);
 }
 
-std::string Texture::generateUID(const std::string &tag)
+std::string TextureMipmap::generateUID(const std::string &tag)
 {
-   return typeid(Texture).name() + std::string("#") + tag;
+   return typeid(TextureMipmap).name() + std::string("#") + tag;
 }
 
-std::string Texture::getUID() const noexcept
+std::string TextureMipmap::getUID() const noexcept
 {
    return generateUID(tag);
 }
 
-void Texture::Bind(Graphics &gfx) noexcept
+void TextureMipmap::Bind(Graphics &gfx) noexcept
 {
    if (m_rootPara != -1)
    {
@@ -39,7 +39,7 @@ void Texture::Bind(Graphics &gfx) noexcept
 }
 
 
-void Texture::createTexture(std::string path, int slot, int rootPara)
+void TextureMipmap::createTexture(std::string path, int slot, int rootPara)
 {
    const auto surface = Surface::FromFile(path);
    m_rootPara = rootPara;
@@ -74,7 +74,7 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
       D3D12_RESOURCE_STATE_COPY_DEST,
       nullptr,
       IID_PPV_ARGS(&m_textureBuffers[slot])));
-   m_textureBuffers[slot]->SetName(L"Texture Default Buffer");
+   m_textureBuffers[slot]->SetName(L"TextureMipmap Default Buffer");
 
    // Upload heap
    heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -132,8 +132,8 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
    srvDesc.Texture2D.MipLevels = 1;
 
    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-   int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-   handle.ptr += slot * size;
+   UINT size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+   handle.ptr += SIZE_T(slot * size);
 
    m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
 }
