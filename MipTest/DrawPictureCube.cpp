@@ -37,7 +37,7 @@ DrawPictureCube::DrawPictureCube(Graphics &gfx, int &index, const std::string &f
 
    std::shared_ptr < Transform > transform = std::make_shared<Transform>(gfx, *this);
    UINT start = 0;
-   UINT count = indices.size();
+   UINT count = (UINT)indices.size();
    transform->setIndices(index, start, count);
    ++index;
 

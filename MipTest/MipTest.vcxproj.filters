@@ -68,6 +68,9 @@
       <Filter>Source\Draw</Filter>
     </ClCompile>
     <ClCompile Include="TextureMipmap.cpp" />
+    <ClCompile Include="FileDDS.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -170,6 +173,11 @@
       <Filter>dxtex</Filter>
     </ClInclude>
     <ClInclude Include="TextureMipmap.h" />
+    <ClInclude Include="dds.h" />
+    <ClInclude Include="stdint.h" />
+    <ClInclude Include="FileDDS.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

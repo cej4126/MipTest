@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Bindable.h"
 #include "Graphics.h"
+#include "FileDDS.h"
 
 class TextureMipmap : public Bind::Bindable
 {
@@ -14,7 +15,7 @@ public:
 
    void Bind(Graphics &gfx) noexcept override;
 
-   void createTexture(std::string path, int slot, int rootPara);
+   void createTextureMipmap(std::string path, int slot, int rootPara);
    bool getAlphaGloss() { return m_alphaGloss; }
 
 private:
@@ -23,6 +24,12 @@ private:
    ID3D12Device *m_device;
    ID3D12GraphicsCommandList *m_commandList;
    //ComPtr<ID3D12RootSignature> m_rootSignature;
+
+   //DXGI_FORMAT getDXGIFormat(const DDS_PIXELFORMAT &ddpf);
+   //std::wstring UTF8ToWideString(const std::string &str);
+   //bool readDDSFile(const std::wstring fileName);
+   //HRESULT createTextureDss(const uint8_t *data, size_t size);
+   //ByteArray readFile(const std::wstring &fileName);
 
    static const int NUMBER_OF_VIEW = 3;
 

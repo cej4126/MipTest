@@ -34,6 +34,10 @@
 #include <d2d1_3.h>
 #include <dwrite.h>
 
+// DDS read
+#include <fstream>
+
+
 inline void ThrowIfFailed(HRESULT hr)
 {
    if (hr != S_OK)

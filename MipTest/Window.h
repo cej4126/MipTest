@@ -35,7 +35,7 @@ private:
    int m_height;
    HWND m_hWnd;
    HINSTANCE m_hInstance;
-   static constexpr const char *m_WindowName = "MipTest";
+   const wchar_t *m_WindowName = L"MipTest";
    bool m_running = true;
    bool m_cursorEnabled = true;
    std::vector<BYTE> m_rawBuffer;

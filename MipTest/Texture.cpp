@@ -132,8 +132,8 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
    srvDesc.Texture2D.MipLevels = 1;
 
    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-   int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-   handle.ptr += slot * size;
+   UINT size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+   handle.ptr += (SIZE_T)((UINT)slot * size);
 
    m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
 }

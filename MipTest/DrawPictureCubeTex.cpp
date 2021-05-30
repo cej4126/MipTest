@@ -31,13 +31,13 @@ DrawPictureCubeTex::DrawPictureCubeTex(Graphics &gfx, int &index, const std::str
    if (!texture->isInitialized())
    {
       texture->setInitialized();
-      texture->createTexture(fileName, 0, 1);
+      texture->createTextureMipmap(fileName, 0, 1);
    }
    addBind(std::move(texture));
 
    std::shared_ptr < Transform > transform = std::make_shared<Transform>(gfx, *this);
    UINT start = 0;
-   UINT count = indices.size();
+   UINT count = (UINT)indices.size();
    transform->setIndices(index, start, count);
    ++index;
 

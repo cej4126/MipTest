@@ -43,7 +43,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -154,6 +154,7 @@
     <ClInclude Include="Bindable.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="d2write.h" />
+    <ClInclude Include="dds.h" />
     <ClInclude Include="DirectXTex.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="dxtex\include\DirectXTexP.h" />
     <ClInclude Include="dxtex\include\filters.h" />
     <ClInclude Include="dxtex\include\scoped.h" />
+    <ClInclude Include="FileDDS.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -179,6 +181,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="stdint.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureMipmap.h" />
@@ -190,6 +193,7 @@
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="d2write.cpp" />
+    <ClCompile Include="FileDDS.cpp" />
     <ClCompile Include="DrawFunction.cpp" />
     <ClCompile Include="DrawPictureCube.cpp" />
     <ClCompile Include="DrawPictureCubeTex.cpp" />
