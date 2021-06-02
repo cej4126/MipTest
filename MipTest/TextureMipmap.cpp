@@ -59,7 +59,7 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
    ZeroMemory(&resourceDesc, sizeof(resourceDesc));
    resourceDesc.Alignment = 0;
    resourceDesc.Width = fileDDS.getWidth();
-   resourceDesc.Height = fileDDS.getHeight();
+   resourceDesc.Height = (UINT)fileDDS.getHeight();
    resourceDesc.DepthOrArraySize = fileDDS.getArraySize();
    resourceDesc.MipLevels = fileDDS.getMipCount();
    resourceDesc.Format = fileDDS.getFormat();
@@ -143,7 +143,7 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 
    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-   srvDesc.Format = resourceDesc.Format;
+   srvDesc.Format = fileDDS.getFormat();
    // No multi array for testing
    assert(fileDDS.getArraySize() == 1);
    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -152,7 +152,7 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
 
    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
    int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-   handle.ptr += (SIZE_T)(slot * size);
+   handle.ptr += (SIZE_T)slot * (SIZE_T)size;
 
    m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
 
