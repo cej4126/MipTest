@@ -67,9 +67,11 @@
     <ClCompile Include="DrawPictureCubeTex.cpp">
       <Filter>Source\Draw</Filter>
     </ClCompile>
-    <ClCompile Include="TextureMipmap.cpp" />
     <ClCompile Include="FileDDS.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMipmap.cpp">
+      <Filter>Source\Bindable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,11 +174,13 @@
     <ClInclude Include="DirectXTex.h">
       <Filter>dxtex</Filter>
     </ClInclude>
-    <ClInclude Include="TextureMipmap.h" />
     <ClInclude Include="dds.h" />
     <ClInclude Include="stdint.h" />
     <ClInclude Include="FileDDS.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMipmap.h">
+      <Filter>Header\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

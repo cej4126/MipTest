@@ -57,17 +57,20 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
 
    D3D12_RESOURCE_DESC resourceDesc;
    ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
    resourceDesc.Alignment = 0;
-   // test   resourceDesc.Width = surface.GetWidth();
-   // test   resourceDesc.Height = surface.GetHeight();
-   resourceDesc.DepthOrArraySize = 1;
-   resourceDesc.MipLevels = 0;
-   resourceDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+   resourceDesc.Width = fileDDS.getWidth();
+   resourceDesc.Height = fileDDS.getHeight();
+   resourceDesc.DepthOrArraySize = fileDDS.getArraySize();
+   resourceDesc.MipLevels = fileDDS.getMipCount();
+   resourceDesc.Format = fileDDS.getFormat();
+   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
    resourceDesc.SampleDesc.Count = 1;
    resourceDesc.SampleDesc.Quality = 0;
    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
    resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+   // only for 2d testing
+   assert(fileDDS.getResourceDim() == D3D12_RESOURCE_DIMENSION_TEXTURE2D);
+   resourceDesc.Dimension = fileDDS.getResourceDim();
 
    ThrowIfFailed(m_device->CreateCommittedResource(
       &heapProps,
@@ -76,15 +79,23 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
       D3D12_RESOURCE_STATE_COPY_DEST,
       nullptr,
       IID_PPV_ARGS(&m_textureBuffers[slot])));
-   m_textureBuffers[slot]->SetName(L"Texture Default Buffer");
 
    // Upload heap
    heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
    UINT64 textureUploadBufferSize;
-   m_device->GetCopyableFootprints(&resourceDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
+   m_device->GetCopyableFootprints(&resourceDesc, 0, fileDDS.getMipCount(), 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
+   //need 256
+   const size_t AlignmentMask = DEFAULT_ALIGN - 1;
+   const size_t AlignedSize = AlignUpWithMask(textureUploadBufferSize, AlignmentMask);
 
    resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-   resourceDesc.Width = textureUploadBufferSize;
+   resourceDesc.Alignment = 0;
+   resourceDesc.DepthOrArraySize = 1;
+   resourceDesc.MipLevels = 1;
+   resourceDesc.SampleDesc.Count = 1;
+   resourceDesc.SampleDesc.Quality = 0;
+   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+   resourceDesc.Width = AlignedSize;
    resourceDesc.Height = 1;
    resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
@@ -98,13 +109,15 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
       IID_PPV_ARGS(&m_textureBufferUploadHeaps[slot])));
    m_textureBufferUploadHeaps[slot]->SetName(L"Texture Upload Buffer");
 
-   // copy data to the upload heap
-   D3D12_SUBRESOURCE_DATA TextureData = {};
-   // test   TextureData.pData = surface.GetBufferPtr();
-   // test   TextureData.RowPitch = surface.GetWidth() * sizeof(Surface::Color);
-   // test   TextureData.SlicePitch = surface.GetWidth() * sizeof(Surface::Color) * surface.GetHeight();
+   //// copy data to the upload heap
+   //D3D12_SUBRESOURCE_DATA TextureData = {};
+   //TextureData.pData = fileDDS.getSubData();
+   //TextureData.RowPitch = fileDDS.getWidth() * sizeof(Surface::Color);
+   //TextureData.SlicePitch = fileDDS.getWidth() * fileDDS.getHeight();
+   int numberOfResource = fileDDS.getMipCount();
+   D3D12_SUBRESOURCE_DATA *pSrcData = fileDDS.getSubData();
 
-   UpdateSubresources<1>(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, 1, &TextureData);
+   UpdateSubresources(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, numberOfResource, pSrcData);
 
 
    D3D12_RESOURCE_BARRIER resourceBarrier;
@@ -128,10 +141,13 @@ void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara
 
    // now we create a shader resource view (descriptor that points to the texture and describes it)
    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
    srvDesc.Format = resourceDesc.Format;
+   // No multi array for testing
+   assert(fileDDS.getArraySize() == 1);
    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-   srvDesc.Texture2D.MipLevels = 1;
+   srvDesc.Texture2D.MipLevels = (!fileDDS.getMipCount()) ? -1 : resourceDesc.MipLevels;
 
    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
    int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

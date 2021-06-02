@@ -19,17 +19,15 @@ public:
    bool getAlphaGloss() { return m_alphaGloss; }
 
 private:
+#define DEFAULT_ALIGN 256
+   template <typename T> __forceinline T AlignUpWithMask(T value, size_t mask)
+   {
+      return (T)(((size_t)value + mask) & ~mask);
+   }
 
    Graphics &m_gfx;
    ID3D12Device *m_device;
    ID3D12GraphicsCommandList *m_commandList;
-   //ComPtr<ID3D12RootSignature> m_rootSignature;
-
-   //DXGI_FORMAT getDXGIFormat(const DDS_PIXELFORMAT &ddpf);
-   //std::wstring UTF8ToWideString(const std::string &str);
-   //bool readDDSFile(const std::wstring fileName);
-   //HRESULT createTextureDss(const uint8_t *data, size_t size);
-   //ByteArray readFile(const std::wstring &fileName);
 
    static const int NUMBER_OF_VIEW = 3;
 

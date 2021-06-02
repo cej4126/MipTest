@@ -37,8 +37,26 @@ class FileDDS
 public:
    bool readDDSFile(const std::wstring fileName);
    typedef std::shared_ptr<std::vector<byte> > ByteArray;
+   UINT64 getWidth() { return m_width; }
+   UINT64 getHeight() { return m_height; }
+   UINT64 getDepth() { return m_depth; }
+   UINT16 getMipCount() { return m_mipCount; }
+   DXGI_FORMAT getFormat() { return m_format; }
+   UINT16 getArraySize() { return m_arraySize; }
+   D3D12_RESOURCE_DIMENSION getResourceDim() { return m_resourceDim; }
+   D3D12_SUBRESOURCE_DATA *getSubData() { return m_subData.get(); }
 
 private:
+   UINT64 m_width = 0;
+   UINT64 m_height = 0;
+   UINT64 m_depth = 1;
+   UINT16 m_mipCount = 0;
+   DXGI_FORMAT m_format;
+   UINT16 m_arraySize;
+   D3D12_RESOURCE_DIMENSION m_resourceDim = D3D12_RESOURCE_DIMENSION_UNKNOWN;
+   std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> m_subData;
+   ByteArray byteArray;
+
    HRESULT createTextureDss(const uint8_t *data, size_t size);
    ByteArray readFile(const std::wstring &fileName);
 };
