@@ -2084,8 +2084,12 @@ inline UINT64 UpdateSubresources(
     for (UINT i = 0; i < NumSubresources; ++i)
     {
         if (pRowSizesInBytes[i] > SIZE_T(-1)) return 0;
-        D3D12_MEMCPY_DEST DestData = { pData + pLayouts[i].Offset, pLayouts[i].Footprint.RowPitch, SIZE_T(pLayouts[i].Footprint.RowPitch) * SIZE_T(pNumRows[i]) };
-        MemcpySubresource(&DestData, &pSrcData[i], static_cast<SIZE_T>(pRowSizesInBytes[i]), pNumRows[i], pLayouts[i].Footprint.Depth);
+        D3D12_MEMCPY_DEST DestData = { pData + pLayouts[i].Offset,
+           pLayouts[i].Footprint.RowPitch,
+           SIZE_T(pLayouts[i].Footprint.RowPitch) * SIZE_T(pNumRows[i]) };
+        MemcpySubresource(&DestData, &pSrcData[i],
+           static_cast<SIZE_T>(pRowSizesInBytes[i]),
+           pNumRows[i], pLayouts[i].Footprint.Depth);
     }
     pIntermediate->Unmap(0, nullptr);
 
@@ -2177,7 +2181,9 @@ inline UINT64 UpdateSubresources(
     _In_reads_(NumSubresources) const D3D12_SUBRESOURCE_DATA* pSrcData) noexcept
 {
     UINT64 RequiredSize = 0;
-    auto MemToAlloc = static_cast<UINT64>(sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) + sizeof(UINT) + sizeof(UINT64)) * NumSubresources;
+    auto MemToAlloc = static_cast<UINT64>(sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT)
+       + sizeof(UINT)
+       + sizeof(UINT64)) * NumSubresources;
     if (MemToAlloc > SIZE_MAX)
     {
        return 0;
@@ -2187,17 +2193,28 @@ inline UINT64 UpdateSubresources(
     {
        return 0;
     }
+    int footSize = sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT);
     auto pLayouts = static_cast<D3D12_PLACED_SUBRESOURCE_FOOTPRINT*>(pMem);
     auto pRowSizesInBytes = reinterpret_cast<UINT64*>(pLayouts + NumSubresources);
+    uint64_t value = (uint64_t)pRowSizesInBytes - (uint64_t)pLayouts;
     auto pNumRows = reinterpret_cast<UINT*>(pRowSizesInBytes + NumSubresources);
 
     auto Desc = pDestinationResource->GetDesc();
     ID3D12Device* pDevice = nullptr;
     pDestinationResource->GetDevice(IID_ID3D12Device, reinterpret_cast<void**>(&pDevice));
-    pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, IntermediateOffset, pLayouts, pNumRows, pRowSizesInBytes, &RequiredSize);
+    pDevice->GetCopyableFootprints(&Desc, FirstSubresource,
+       NumSubresources,
+       IntermediateOffset,
+       pLayouts,
+       pNumRows,
+       pRowSizesInBytes,
+       &RequiredSize);
     pDevice->Release();
 
-    UINT64 Result = UpdateSubresources(pCmdList, pDestinationResource, pIntermediate, FirstSubresource, NumSubresources, RequiredSize, pLayouts, pNumRows, pRowSizesInBytes, pSrcData);
+    UINT64 Result = UpdateSubresources(pCmdList,
+       pDestinationResource, pIntermediate,
+       FirstSubresource, NumSubresources,
+       RequiredSize, pLayouts, pNumRows, pRowSizesInBytes, pSrcData);
     HeapFree(GetProcessHeap(), 0, pMem);
     return Result;
 }

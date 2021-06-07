@@ -155,7 +155,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="d2write.h" />
     <ClInclude Include="dds.h" />
-    <ClInclude Include="DirectXTex.h" />
     <ClInclude Include="DrawFunction.h" />
     <ClInclude Include="DrawPictureCube.h" />
     <ClInclude Include="DrawPictureCubeTex.h" />

@@ -3,6 +3,14 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
+const std::wstring UTF8ToWideString(const std::string &str)
+{
+   wchar_t wstr[MAX_PATH];
+   if (!MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str.c_str(), -1, wstr, MAX_PATH))
+      wstr[0] = L'\0';
+   return wstr;
+}
+
 Graphics::Graphics(HWND hWnd, int width, int height)
    :
    m_hWnd(hWnd),

@@ -30,7 +30,7 @@ static HRESULT FillInitData(_In_ size_t width,
    _Out_writes_(mipCount *arraySize) D3D12_SUBRESOURCE_DATA *initData);
 
 
-std::wstring UTF8ToWideString(const std::string &str);
+//std::wstring UTF8ToWideString(const std::string &str);
 
 class FileDDS
 {

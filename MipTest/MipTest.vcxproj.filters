@@ -171,16 +171,17 @@
     <ClInclude Include="DrawFunction.h">
       <Filter>Header\Draw</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXTex.h">
-      <Filter>dxtex</Filter>
-    </ClInclude>
-    <ClInclude Include="dds.h" />
-    <ClInclude Include="stdint.h" />
     <ClInclude Include="FileDDS.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="TextureMipmap.h">
       <Filter>Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="dds.h">
+      <Filter>Header\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="stdint.h">
+      <Filter>Header\Draw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

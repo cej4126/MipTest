@@ -58,7 +58,7 @@ Surface::Color *Surface::GetBufferPtr() noexcept
    return reinterpret_cast<Color *>(scratch.GetPixels());
 }
 
-const const Surface::Color *Surface::GetBufferPtr() const noexcept
+const Surface::Color *Surface::GetBufferPtr() const noexcept
 {
    return const_cast<Surface *>(this)->GetBufferPtr();
 }

@@ -10,7 +10,7 @@ public:
    DrawFunction(const DrawFunction &) = delete;
    virtual ~DrawFunction() = default;
 
-   void draw(Graphics &gfx) const noexcept;
+   void draw() const noexcept;
    virtual void update(float deltaTime) noexcept {};
    virtual XMMATRIX getTransformXM() const noexcept = 0;
    virtual void setPos(DirectX::XMFLOAT3 pos) noexcept {};

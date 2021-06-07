@@ -9,19 +9,21 @@ Transform::Transform(Graphics &gfx, const DrawFunction &parent, int rootVS, int 
 {
 }
 
-void Transform::Bind(Graphics &gfx) noexcept
+void Transform::draw() noexcept
 {
-   auto c = gfx.getCamera();
+   auto c = m_gfx.getCamera();
    auto p = m_parentTransform.getTransformXM();
-   auto g = gfx.getProjection();
+   auto g = m_gfx.getProjection();
 
-   const auto modelView = m_parentTransform.getTransformXM() * gfx.getCamera();
+   //const auto modelView = m_parentTransform.getTransformXM() * gfx.getCamera();
+   const auto modelView = m_parentTransform.getTransformXM() * m_gfx.getCamera();
    const Graphics::TransformMatrix contantMatrix =
    {
       XMMatrixTranspose(modelView),
       XMMatrixTranspose(
       modelView *
-      gfx.getProjection())
+      //gfx.getProjection())
+      m_gfx.getProjection())
    };
 
    int index = getIndex();
@@ -30,7 +32,8 @@ void Transform::Bind(Graphics &gfx) noexcept
       assert(false);
    }
 
-   gfx.setMatrixConstant(index, contantMatrix, m_rootVS, m_rootPS);
+   //gfx.setMatrixConstant(index, contantMatrix, m_rootVS, m_rootPS);
+   m_gfx.setMatrixConstant(index, contantMatrix, m_rootVS, m_rootPS);
 
    //int materialIndex = m_parentTransform.getMaterialIndex();
    //if (materialIndex != -1)

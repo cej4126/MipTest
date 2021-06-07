@@ -12,7 +12,7 @@ public:
    static std::string generateUID(const std::string &tag);
    std::string getUID() const noexcept override;
 
-   void Bind(Graphics &gfx) noexcept override;
+   void draw() noexcept override;
 
    void createTexture(std::string path, int slot, int rootPara);
    bool getAlphaGloss() { return m_alphaGloss; }

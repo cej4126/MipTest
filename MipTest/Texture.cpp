@@ -1,6 +1,7 @@
 #include "Texture.h"
 #include "Surface.h"
 #include "d3dx12.h"
+#include "Graphics.h"
 
 Texture::Texture(Graphics &gfx, std::string tag)
    :
@@ -25,7 +26,7 @@ std::string Texture::getUID() const noexcept
    return generateUID(tag);
 }
 
-void Texture::Bind(Graphics &gfx) noexcept
+void Texture::draw() noexcept
 {
    if (m_rootPara != -1)
    {
@@ -37,7 +38,6 @@ void Texture::Bind(Graphics &gfx) noexcept
       m_commandList->SetGraphicsRootDescriptorTable(m_rootPara, m_mainDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
    }
 }
-
 
 void Texture::createTexture(std::string path, int slot, int rootPara)
 {
@@ -102,8 +102,9 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
    TextureData.RowPitch = surface.GetWidth() * sizeof(Surface::Color);
    TextureData.SlicePitch = surface.GetWidth() * sizeof(Surface::Color) * surface.GetHeight();
 
-   UpdateSubresources<1>(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, 1, &TextureData);
+   //D3D12_SUBRESOURCE_DATA *pSrcData = fileDDS.getSubData();
 
+   UpdateSubresources<1>(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, 1, &TextureData);
 
    D3D12_RESOURCE_BARRIER resourceBarrier;
    resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -133,7 +134,7 @@ void Texture::createTexture(std::string path, int slot, int rootPara)
 
    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
    UINT size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-   handle.ptr += (SIZE_T)((UINT)slot * size);
+   handle.ptr += (SIZE_T)slot * (SIZE_T)size;
 
    m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
 }

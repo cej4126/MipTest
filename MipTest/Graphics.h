@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "Graphics.h"
 
+const std::wstring UTF8ToWideString(const std::string &str);
+
 class Graphics
 {
 public:

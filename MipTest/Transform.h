@@ -8,7 +8,7 @@ class Transform : public Bind::Bindable
 {
 public:
    Transform(Graphics &gfx, const DrawFunction &parent, int rootVS = 0, int rootPS = -1);
-   void Bind(Graphics &gfx) noexcept override;
+   void draw() noexcept override;
    void setIndices(int index, UINT start, UINT count);
 
 private:

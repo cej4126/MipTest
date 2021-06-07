@@ -27,7 +27,6 @@ private:
    std::unique_ptr<d2write> m_d2writeItem;
    Camera m_camera;
 
-   //std::unique_ptr<class DrawPictureCube> cube;
    std::vector<std::unique_ptr<class DrawFunction>> m_drawItems;
    int m_drawCount = 0;
 };

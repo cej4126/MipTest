@@ -433,14 +433,6 @@ static HRESULT FillInitData(_In_ size_t width,
    return (index > 0) ? S_OK : E_FAIL;
 }
 
-std::wstring UTF8ToWideString(const std::string &str)
-{
-   wchar_t wstr[MAX_PATH];
-   if (!MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str.c_str(), -1, wstr, MAX_PATH))
-      wstr[0] = L'\0';
-   return wstr;
-}
-
 FileDDS::ByteArray NullFile = std::make_shared<std::vector<byte> >(std::vector<byte>());
 
 HRESULT FileDDS::createTextureDss(const uint8_t *data, size_t size)

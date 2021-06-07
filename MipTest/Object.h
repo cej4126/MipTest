@@ -13,7 +13,7 @@ public:
    static std::string generateUID(const std::string &tag);
    std::string getUID() const noexcept override;
 
-   void Bind(Graphics &gfx) noexcept override;
+   void draw() noexcept override;
    void createRootSignature();
    void createShader(const std::wstring &vertexPath, const std::wstring &pixelPath);
    void createPipeLineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology);

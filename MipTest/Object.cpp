@@ -24,7 +24,7 @@ std::string Object::getUID() const noexcept
    return generateUID(tag);
 }
 
-void Object::Bind(Graphics &gfx) noexcept
+void Object::draw() noexcept
 {
    m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
    m_commandList->SetPipelineState(m_pipelineState.Get());

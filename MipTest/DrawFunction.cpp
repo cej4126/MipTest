@@ -1,10 +1,10 @@
 #include "DrawFunction.h"
 
-void DrawFunction::draw(Graphics &gfx) const noexcept
+void DrawFunction::draw() const noexcept
 {
    for (auto &b : binds)
    {
-      b->Bind(gfx);
+      b->draw();
    }
 }
 

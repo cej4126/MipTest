@@ -6,7 +6,7 @@ namespace Bind
    class Bindable
    {
    public:
-      virtual void Bind(Graphics &gfx) noexcept = 0;
+      virtual void draw() noexcept = 0;
       virtual ~Bindable() = default;
       virtual std::string getUID() const noexcept { return ""; }
       bool isInitialized() { return m_initualized; }

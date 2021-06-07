@@ -31,7 +31,18 @@ DrawPictureCubeTex::DrawPictureCubeTex(Graphics &gfx, int &index, const std::str
    if (!texture->isInitialized())
    {
       texture->setInitialized();
-      texture->createTextureMipmap(fileName, 0, 1);
+
+      std::wstring wpath = UTF8ToWideString(fileName);
+      const wchar_t *wcs = wpath.c_str();
+      int copyPos = wpath.find(L" - Copy");
+      if (copyPos != -1)
+      {
+         texture->createTextureNew(wcs, 0, 1);
+      }
+      else
+      {
+         texture->createTextureMipmap(fileName, 0, 1);
+      }
    }
    addBind(std::move(texture));
 
