@@ -14,7 +14,7 @@ DrawPictureCubeTex::DrawPictureCubeTex(Graphics &gfx, int &index, const std::str
    shape.getCubeData(vertices, indices);
 
    std::shared_ptr<Object> object = Object::resolve(gfx, tag);
-   if (!object->isInitialized())
+    if (!object->isInitialized())
    {
       object->setInitialized();
 
@@ -34,15 +34,7 @@ DrawPictureCubeTex::DrawPictureCubeTex(Graphics &gfx, int &index, const std::str
 
       std::wstring wpath = UTF8ToWideString(fileName);
       const wchar_t *wcs = wpath.c_str();
-      int copyPos = wpath.find(L" - Copy");
-      if (copyPos != -1)
-      {
-         texture->createTextureNew(wcs, 0, 1);
-      }
-      else
-      {
-         texture->createTextureMipmap(fileName, 0, 1);
-      }
+      texture->createTextureMipmap(wcs, 0, 1);
    }
    addBind(std::move(texture));
 

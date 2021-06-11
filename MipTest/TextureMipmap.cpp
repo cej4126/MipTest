@@ -40,10 +40,24 @@ void TextureMipmap::draw() noexcept
 }
 
 
-void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara)
+void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootPara)
 {
+   m_rootPara = rootPara;
+
    DirectX::ScratchImage *imageData = new DirectX::ScratchImage();
-   ThrowIfFailed(DirectX::LoadFromDDSFile(path, DirectX::DDS_FLAGS_NONE, nullptr, *imageData));
+   std::wstring wname = path;
+   if (wname.find(L".dds") != -1)
+   {
+      ThrowIfFailed(DirectX::LoadFromDDSFile(path, DirectX::DDS_FLAGS_NONE, nullptr, *imageData));
+   }
+   else if (wname.find(L".jpg") != -1)
+   {
+      ThrowIfFailed(DirectX::LoadFromWICFile(path, DirectX::WIC_FLAGS_NONE, nullptr, *imageData));
+   }
+   else
+   {
+      throw;
+   }
 
    const DirectX::TexMetadata &textureMetaData = imageData->GetMetadata();
    DXGI_FORMAT textureFormat = textureMetaData.format;
@@ -69,10 +83,9 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
    defaultProperties.CreationNodeMask = 0;
    defaultProperties.VisibleNodeMask = 0;
 
-   ID3D12Resource *newTextureResource = NULL;
    ThrowIfFailed(m_device->CreateCommittedResource(&defaultProperties,
       D3D12_HEAP_FLAG_NONE,
-      &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_PPV_ARGS(&newTextureResource)));
+      &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_PPV_ARGS(&m_textureBuffers[slot])));
 
    D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
    if (is3DTexture)
@@ -98,8 +111,6 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
    uploadProps.CreationNodeMask = 1;
    uploadProps.VisibleNodeMask = 1;
 
-   //         m_textureBufferUploadHeaps[slot].Get(),
-//         0, 0, numberOfResource, pSrcData);
    UINT64 RequiredSize = 0;
    auto MemToAlloc = static_cast<UINT64>(sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) +
       sizeof(UINT) + sizeof(UINT64)) * textureMetaData.mipLevels;
@@ -169,30 +180,9 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
    int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
    srcHandle.ptr += (SIZE_T)slot * (SIZE_T)size;
 
-   m_device->CreateShaderResourceView(newTextureResource,
+   m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(),
       is3DTexture ? &shaderResourceViewDesc : NULL,
       srcHandle);
-
-   // UpdateSubresources 1(m_commandList, m_textureBuffers[slot].Get(),
-
-   //D3D12_PLACED_SUBRESOURCE_FOOTPRINT Layouts[11];
-   //UINT NumRows[11];
-   //UINT64 RowSizesInBytes[11];
-   //for (int i = 0; i < 11; i++)
-   //{
-   //   Layouts[i] = pLayouts[i];
-   //   NumRows[i] = pNumRows[i];
-   //   RowSizesInBytes[i] = pRowSizesInBytes[i];
-   //}
-
-   //pDevice->GetCopyableFootprints(&Desc,
-   //        FirstSubresource,
-   //        NumSubresources,
-   //        IntermediateOffset,
-   //        pLayouts, pNumRows, pRowSizesInBytes, &RequiredSize);
-
-   // UpdateSubresources 2
-
 
    BYTE *pData;
    HRESULT hr = m_textureBufferUploadHeaps[slot]->Map(0, nullptr, reinterpret_cast<void **>(&pData));
@@ -200,11 +190,6 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
    {
       throw;
    }
-
-
-   //const size_t AlignmentMask = DEFAULT_ALIGN - 1;
-   //Direct3DUploadInfo uploadInfo = uploadContext->BeginUpload(textureMemorySize, mQueueManager);
-   //uint8_t *uploadMemory = reinterpret_cast<uint8 *>(uploadInfo.Memory);
 
    for (uint64_t arrayIndex = 0; arrayIndex < textureMetaData.arraySize; arrayIndex++)
    {
@@ -226,12 +211,8 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
 
             for (uint64_t height = 0; height < subResourceHeight; height++)
             {
-               size_t size;
-               if (subResourcePitch > subImage->rowPitch)
-               {
-                  size = subImage->rowPitch;
-               }
-               else
+               size_t size = subImage->rowPitch;
+               if (size > subResourcePitch)
                {
                   size = subResourcePitch;
                }
@@ -242,6 +223,15 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
          }
       }
    }
+   //m_commandList->CopyBufferRegion(
+   //   m_textureBuffers[slot].Get(), 0, m_textureBufferUploadHeaps[slot].Get(), pLayouts[0].Offset, pLayouts[0].Footprint.Width);
+
+   for (UINT i = 0; i < textureMetaData.mipLevels; ++i)
+   {
+      CD3DX12_TEXTURE_COPY_LOCATION Dst(m_textureBuffers[slot].Get(), i);
+      CD3DX12_TEXTURE_COPY_LOCATION Src(m_textureBufferUploadHeaps[slot].Get(), pLayouts[i]);
+      m_commandList->CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
+   }
 
 
    HeapFree(GetProcessHeap(), 0, pMem);
@@ -249,126 +239,126 @@ void TextureMipmap::createTextureNew(const wchar_t *path, int slot, int rootPara
 
 }
 
-void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara)
-{
-   FileDDS fileDDS;
-
-   fileDDS.readDDSFile(UTF8ToWideString(path));
-   m_rootPara = rootPara;
-   //   m_alphaGloss = surface.AlphaLoaded();
-
-   D3D12_HEAP_PROPERTIES heapProps;
-   ZeroMemory(&heapProps, sizeof(heapProps));
-   heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-   heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-   heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-   heapProps.CreationNodeMask = 1;
-   heapProps.VisibleNodeMask = 1;
-
-   D3D12_RESOURCE_DESC resourceDesc;
-   ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-   resourceDesc.Alignment = 0;
-   resourceDesc.Width = fileDDS.getWidth();
-   resourceDesc.Height = (UINT)fileDDS.getHeight();
-   resourceDesc.DepthOrArraySize = fileDDS.getArraySize();
-   resourceDesc.MipLevels = fileDDS.getMipCount();
-   resourceDesc.Format = fileDDS.getFormat();
-   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-   resourceDesc.SampleDesc.Count = 1;
-   resourceDesc.SampleDesc.Quality = 0;
-   resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-   // only for 2d testing
-   assert(fileDDS.getResourceDim() == D3D12_RESOURCE_DIMENSION_TEXTURE2D);
-   resourceDesc.Dimension = fileDDS.getResourceDim();
-
-   ThrowIfFailed(m_device->CreateCommittedResource(
-      &heapProps,
-      D3D12_HEAP_FLAG_NONE,
-      &resourceDesc,
-      D3D12_RESOURCE_STATE_COPY_DEST,
-      nullptr,
-      IID_PPV_ARGS(&m_textureBuffers[slot])));
-
-   // Upload heap
-   heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-   heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-   heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-   heapProps.CreationNodeMask = 1;
-   heapProps.VisibleNodeMask = 1;
-
-   //need 256
-   UINT64 textureUploadBufferSize;
-
-   m_device->GetCopyableFootprints(&resourceDesc, 0, fileDDS.getMipCount(), 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
-   const size_t AlignmentMask = DEFAULT_ALIGN - 1;
-   const size_t AlignedSize = AlignUpWithMask(textureUploadBufferSize, AlignmentMask);
-
-   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-   resourceDesc.Alignment = 0;
-   resourceDesc.DepthOrArraySize = 1;
-   resourceDesc.MipLevels = 1;
-   resourceDesc.SampleDesc.Count = 1;
-   resourceDesc.SampleDesc.Quality = 0;
-   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-   resourceDesc.Width = AlignedSize;
-   resourceDesc.Height = 1;
-   resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-   resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-   ThrowIfFailed(m_device->CreateCommittedResource(
-      &heapProps,
-      D3D12_HEAP_FLAG_NONE,
-      &resourceDesc,
-      D3D12_RESOURCE_STATE_GENERIC_READ,
-      nullptr,
-      IID_PPV_ARGS(&m_textureBufferUploadHeaps[slot])));
-
-   //// copy data to the upload heap
-   //D3D12_SUBRESOURCE_DATA TextureData = {};
-   //TextureData.pData = fileDDS.getSubData();
-   //TextureData.RowPitch = fileDDS.getWidth() * sizeof(Surface::Color);
-   //TextureData.SlicePitch = fileDDS.getWidth() * fileDDS.getHeight();
-   int numberOfResource = fileDDS.getMipCount() * fileDDS.getArraySize();
-   D3D12_SUBRESOURCE_DATA *pSrcData = fileDDS.getSubData();
-
-   UpdateSubresources(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, numberOfResource, pSrcData);
-
-
-   D3D12_RESOURCE_BARRIER resourceBarrier;
-   resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-   resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-   resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-   resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-   resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-   resourceBarrier.Transition.pResource = m_textureBuffers[slot].Get();
-   m_commandList->ResourceBarrier(1, &resourceBarrier);
-
-   if (slot == 0)
-   {
-      // create the descriptor heap that will store our srv
-      D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-      heapDesc.NumDescriptors = NUMBER_OF_VIEW;
-      heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-      heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-      ThrowIfFailed(m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_mainDescriptorHeap)));
-   }
-
-   // now we create a shader resource view (descriptor that points to the texture and describes it)
-   D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-
-   srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-   srvDesc.Format = fileDDS.getFormat();
-   // No multi array for testing
-   assert(fileDDS.getArraySize() == 1);
-   srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-   srvDesc.Texture2D.MipLevels = fileDDS.getMipCount();
-   srvDesc.Texture2D.MostDetailedMip = 0;
-
-   D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-   int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-   handle.ptr += (SIZE_T)slot * (SIZE_T)size;
-
-   m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
-
-}
+//void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara)
+//{
+//   FileDDS fileDDS;
+//
+//   fileDDS.readDDSFile(UTF8ToWideString(path));
+//   m_rootPara = rootPara;
+//   //   m_alphaGloss = surface.AlphaLoaded();
+//
+//   D3D12_HEAP_PROPERTIES heapProps;
+//   ZeroMemory(&heapProps, sizeof(heapProps));
+//   heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+//   heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+//   heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+//   heapProps.CreationNodeMask = 1;
+//   heapProps.VisibleNodeMask = 1;
+//
+//   D3D12_RESOURCE_DESC resourceDesc;
+//   ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+//   resourceDesc.Alignment = 0;
+//   resourceDesc.Width = fileDDS.getWidth();
+//   resourceDesc.Height = (UINT)fileDDS.getHeight();
+//   resourceDesc.DepthOrArraySize = fileDDS.getArraySize();
+//   resourceDesc.MipLevels = fileDDS.getMipCount();
+//   resourceDesc.Format = fileDDS.getFormat();
+//   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+//   resourceDesc.SampleDesc.Count = 1;
+//   resourceDesc.SampleDesc.Quality = 0;
+//   resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+//   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+//   // only for 2d testing
+//   assert(fileDDS.getResourceDim() == D3D12_RESOURCE_DIMENSION_TEXTURE2D);
+//   resourceDesc.Dimension = fileDDS.getResourceDim();
+//
+//   ThrowIfFailed(m_device->CreateCommittedResource(
+//      &heapProps,
+//      D3D12_HEAP_FLAG_NONE,
+//      &resourceDesc,
+//      D3D12_RESOURCE_STATE_COPY_DEST,
+//      nullptr,
+//      IID_PPV_ARGS(&m_textureBuffers[slot])));
+//
+//   // Upload heap
+//   heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+//   heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+//   heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+//   heapProps.CreationNodeMask = 1;
+//   heapProps.VisibleNodeMask = 1;
+//
+//   //need 256
+//   UINT64 textureUploadBufferSize;
+//
+//   m_device->GetCopyableFootprints(&resourceDesc, 0, fileDDS.getMipCount(), 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
+//   const size_t AlignmentMask = DEFAULT_ALIGN - 1;
+//   const size_t AlignedSize = AlignUpWithMask(textureUploadBufferSize, AlignmentMask);
+//
+//   resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+//   resourceDesc.Alignment = 0;
+//   resourceDesc.DepthOrArraySize = 1;
+//   resourceDesc.MipLevels = 1;
+//   resourceDesc.SampleDesc.Count = 1;
+//   resourceDesc.SampleDesc.Quality = 0;
+//   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+//   resourceDesc.Width = AlignedSize;
+//   resourceDesc.Height = 1;
+//   resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+//   resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+//
+//   ThrowIfFailed(m_device->CreateCommittedResource(
+//      &heapProps,
+//      D3D12_HEAP_FLAG_NONE,
+//      &resourceDesc,
+//      D3D12_RESOURCE_STATE_GENERIC_READ,
+//      nullptr,
+//      IID_PPV_ARGS(&m_textureBufferUploadHeaps[slot])));
+//
+//   //// copy data to the upload heap
+//   //D3D12_SUBRESOURCE_DATA TextureData = {};
+//   //TextureData.pData = fileDDS.getSubData();
+//   //TextureData.RowPitch = fileDDS.getWidth() * sizeof(Surface::Color);
+//   //TextureData.SlicePitch = fileDDS.getWidth() * fileDDS.getHeight();
+//   int numberOfResource = fileDDS.getMipCount() * fileDDS.getArraySize();
+//   D3D12_SUBRESOURCE_DATA *pSrcData = fileDDS.getSubData();
+//
+//   UpdateSubresources(m_commandList, m_textureBuffers[slot].Get(), m_textureBufferUploadHeaps[slot].Get(), 0, 0, numberOfResource, pSrcData);
+//
+//
+//   D3D12_RESOURCE_BARRIER resourceBarrier;
+//   resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+//   resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+//   resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+//   resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+//   resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+//   resourceBarrier.Transition.pResource = m_textureBuffers[slot].Get();
+//   m_commandList->ResourceBarrier(1, &resourceBarrier);
+//
+//   if (slot == 0)
+//   {
+//      // create the descriptor heap that will store our srv
+//      D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+//      heapDesc.NumDescriptors = NUMBER_OF_VIEW;
+//      heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+//      heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+//      ThrowIfFailed(m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_mainDescriptorHeap)));
+//   }
+//
+//   // now we create a shader resource view (descriptor that points to the texture and describes it)
+//   D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+//
+//   srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+//   srvDesc.Format = fileDDS.getFormat();
+//   // No multi array for testing
+//   assert(fileDDS.getArraySize() == 1);
+//   srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+//   srvDesc.Texture2D.MipLevels = fileDDS.getMipCount();
+//   srvDesc.Texture2D.MostDetailedMip = 0;
+//
+//   D3D12_CPU_DESCRIPTOR_HANDLE handle = m_mainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+//   int size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+//   handle.ptr += (SIZE_T)slot * (SIZE_T)size;
+//
+//   m_device->CreateShaderResourceView(m_textureBuffers[slot].Get(), &srvDesc, handle);
+//
+//}

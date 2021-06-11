@@ -25,7 +25,7 @@ void Camera::createControlWindow() noexcept
       ImGui::Text("Position");
       ImGui::SliderFloat("X", &m_position.z, -10.0f, 10.0f, "%.1f");
       ImGui::SliderFloat("Y", &m_position.y, -10.0f, 10.0f, "%.1f");
-      ImGui::SliderFloat("Z", &m_position.x, -300.0f, 1.0f, "%.1f");
+      ImGui::SliderFloat("Z", &m_position.x, -300.0f, -0.5f, "%.1f");
       ImGui::Text("Orientation");
       ImGui::SliderAngle("Pitch", &m_pitch, -89.950f, 89.95f);
       ImGui::SliderAngle("Yaw", &m_yaw, -180.0f, 180.0f);

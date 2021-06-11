@@ -15,8 +15,8 @@ public:
 
    void draw() noexcept override;
 
-   void createTextureNew(const wchar_t *path, int slot, int rootPara);
-   void createTextureMipmap(std::string path, int slot, int rootPara);
+   void createTextureMipmap(const wchar_t *path, int slot, int rootPara);
+   //void createTextureMipmap(std::string path, int slot, int rootPara);
    bool getAlphaGloss() { return m_alphaGloss; }
 
 private:
