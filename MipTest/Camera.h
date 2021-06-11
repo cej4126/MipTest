@@ -16,7 +16,7 @@ private:
    float wrapAngle(float theta);
    static constexpr float PI = 3.14159265f;
    static constexpr float TravelSpeed = 12.0;
-   static constexpr float RotationSpeed = 4.0;
+   static constexpr float RotationSpeed = 0.001f;
    XMFLOAT3 m_position;
    float m_pitch;
    float m_yaw;

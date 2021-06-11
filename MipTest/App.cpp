@@ -10,7 +10,7 @@ App::App()
    m_lastTime = std::chrono::steady_clock::now();
 
    m_d2writeItem = std::make_unique<d2write>(m_window.gfx());
-   
+
    m_drawItems.push_back(std::make_unique<DrawPictureCubeTex>(m_window.gfx(), m_drawCount, "..\\..\\MipTest\\Images\\280893.jpg"));
    m_drawItems.at(size_t((size_t)m_drawCount - 1))->setPos(XMFLOAT3(0.0f, 1.1f, 1.1f));
 
@@ -26,6 +26,12 @@ App::App()
    m_window.gfx().createMatrixConstant(m_drawCount);
 
    m_window.gfx().runCommandList();
+
+   for (auto& b : m_drawItems)
+   {
+      b->freeUpload();
+   }
+
    m_window.gfx().setProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f));
 }
 
@@ -58,7 +64,7 @@ void App::DoFrame()
    m_window.gfx().onRenderBegin();
    m_window.gfx().onRender();
 
-   for (auto &b : m_drawItems)
+   for (auto& b : m_drawItems)
    {
       b->update(deltaTime);
       b->draw();

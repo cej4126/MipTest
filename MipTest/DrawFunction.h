@@ -7,10 +7,11 @@ class DrawFunction
 {
 public:
    DrawFunction() = default;
-   DrawFunction(const DrawFunction &) = delete;
+   DrawFunction(const DrawFunction&) = delete;
    virtual ~DrawFunction() = default;
 
    void draw() const noexcept;
+   void freeUpload() const noexcept;
    virtual void update(float deltaTime) noexcept {};
    virtual XMMATRIX getTransformXM() const noexcept = 0;
    virtual void setPos(DirectX::XMFLOAT3 pos) noexcept {};

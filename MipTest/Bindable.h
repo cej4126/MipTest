@@ -7,6 +7,7 @@ namespace Bind
    {
    public:
       virtual void draw() noexcept = 0;
+      virtual void freeUpload() noexcept = 0;
       virtual ~Bindable() = default;
       virtual std::string getUID() const noexcept { return ""; }
       bool isInitialized() { return m_initualized; }
@@ -21,12 +22,12 @@ namespace Bind
    class BindableCodex
    {
    public:
-      template<class T, typename ... Params> static std::shared_ptr<T> resolve(Graphics &gfx, Params && ... p) noexcept
+      template<class T, typename ... Params> static std::shared_ptr<T> resolve(Graphics& gfx, Params && ... p) noexcept
       {
          return get().resolveCodex<T>(gfx, std::forward < Params>(p) ...);
       }
    private:
-      template<class T, typename ... Params> std::shared_ptr<T> resolveCodex(Graphics &gfx, Params && ... p) noexcept
+      template<class T, typename ... Params> std::shared_ptr<T> resolveCodex(Graphics& gfx, Params && ... p) noexcept
       {
          const auto key = T::generateUID(std::forward<Params>(p) ...);
          const auto i = binds.find(key);
@@ -42,7 +43,7 @@ namespace Bind
          }
       }
 
-      static BindableCodex &get()
+      static BindableCodex& get()
       {
          static BindableCodex codex;
          return codex;

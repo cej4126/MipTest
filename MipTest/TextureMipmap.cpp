@@ -3,7 +3,7 @@
 #include "d3dx12.h"
 #include "dds.h"
 
-TextureMipmap::TextureMipmap(Graphics &gfx, std::string tag)
+TextureMipmap::TextureMipmap(Graphics& gfx, std::string tag)
    :
    m_gfx(gfx),
    m_device(gfx.getDevice()),
@@ -11,12 +11,12 @@ TextureMipmap::TextureMipmap(Graphics &gfx, std::string tag)
 {
 }
 
-std::shared_ptr<TextureMipmap> TextureMipmap::resolve(Graphics &gfx, const std::string &tag)
+std::shared_ptr<TextureMipmap> TextureMipmap::resolve(Graphics& gfx, const std::string& tag)
 {
    return Bind::BindableCodex::resolve<TextureMipmap>(gfx, tag);
 }
 
-std::string TextureMipmap::generateUID(const std::string &tag)
+std::string TextureMipmap::generateUID(const std::string& tag)
 {
    return typeid(TextureMipmap).name() + std::string("#") + tag;
 }
@@ -31,7 +31,7 @@ void TextureMipmap::draw() noexcept
    if (m_rootPara != -1)
    {
       // set the descriptor heap
-      ID3D12DescriptorHeap *descriptorHeaps[] = { m_mainDescriptorHeap.Get() };
+      ID3D12DescriptorHeap* descriptorHeaps[] = { m_mainDescriptorHeap.Get() };
       m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
       // set the descriptor table to the descriptor heap (parameter 1, as constant buffer root descriptor is parameter index 0)
@@ -39,12 +39,16 @@ void TextureMipmap::draw() noexcept
    }
 }
 
+void TextureMipmap::freeUpload() noexcept
+{
+   //m_textureBufferUploadHeaps[0]->Release();
+}
 
-void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootPara)
+void TextureMipmap::createTextureMipmap(const wchar_t* path, int slot, int rootPara)
 {
    m_rootPara = rootPara;
 
-   DirectX::ScratchImage *imageData = new DirectX::ScratchImage();
+   DirectX::ScratchImage* imageData = new DirectX::ScratchImage();
    std::wstring wname = path;
    if (wname.find(L".dds") != -1)
    {
@@ -59,7 +63,7 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
       throw;
    }
 
-   const DirectX::TexMetadata &textureMetaData = imageData->GetMetadata();
+   const DirectX::TexMetadata& textureMetaData = imageData->GetMetadata();
    DXGI_FORMAT textureFormat = textureMetaData.format;
    bool is3DTexture = textureMetaData.dimension == DirectX::TEX_DIMENSION_TEXTURE3D;
 
@@ -99,11 +103,6 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
       shaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
    }
 
-   // Upload heap
-   //UINT numRows[MAX_TEXTURE_SUBRESOURCE_COUNT];
-   //uint64_t rowSizesInBytes[MAX_TEXTURE_SUBRESOURCE_COUNT];
-   //D3D12_PLACED_SUBRESOURCE_FOOTPRINT layouts[MAX_TEXTURE_SUBRESOURCE_COUNT];
-
    D3D12_HEAP_PROPERTIES uploadProps;
    uploadProps.Type = D3D12_HEAP_TYPE_UPLOAD;
    uploadProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -118,14 +117,14 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
    {
       throw;
    }
-   void *pMem = HeapAlloc(GetProcessHeap(), 0, static_cast<SIZE_T>(MemToAlloc));
+   void* pMem = HeapAlloc(GetProcessHeap(), 0, static_cast<SIZE_T>(MemToAlloc));
    if (pMem == nullptr)
    {
       throw;
    }
-   auto pLayouts = static_cast<D3D12_PLACED_SUBRESOURCE_FOOTPRINT *>(pMem);
-   auto pRowSizesInBytes = reinterpret_cast<UINT64 *>(pLayouts + textureMetaData.mipLevels);
-   auto pNumRows = reinterpret_cast<UINT *>(pRowSizesInBytes + textureMetaData.mipLevels);
+   auto pLayouts = static_cast<D3D12_PLACED_SUBRESOURCE_FOOTPRINT*>(pMem);
+   auto pRowSizesInBytes = reinterpret_cast<UINT64*>(pLayouts + textureMetaData.mipLevels);
+   auto pNumRows = reinterpret_cast<UINT*>(pRowSizesInBytes + textureMetaData.mipLevels);
    const uint64_t numSubResources = textureMetaData.mipLevels * textureMetaData.arraySize;
    uint64_t textureMemorySize = 0;
 
@@ -184,8 +183,8 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
       is3DTexture ? &shaderResourceViewDesc : NULL,
       srcHandle);
 
-   BYTE *pData;
-   HRESULT hr = m_textureBufferUploadHeaps[slot]->Map(0, nullptr, reinterpret_cast<void **>(&pData));
+   BYTE* pData;
+   HRESULT hr = m_textureBufferUploadHeaps[slot]->Map(0, nullptr, reinterpret_cast<void**>(&pData));
    if (FAILED(hr))
    {
       throw;
@@ -197,17 +196,17 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
       {
          const uint64_t subResourceIndex = mipIndex + (arrayIndex * textureMetaData.mipLevels);
 
-         const D3D12_PLACED_SUBRESOURCE_FOOTPRINT &subResourceLayout = pLayouts[subResourceIndex];
+         const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& subResourceLayout = pLayouts[subResourceIndex];
          const uint64_t subResourceHeight = pNumRows[subResourceIndex];
 
          const uint64_t subResourcePitch = AlignUpWithMask(subResourceLayout.Footprint.RowPitch, AlignmentMask);
          const uint64_t subResourceDepth = subResourceLayout.Footprint.Depth;
-         uint8_t *destinationSubResourceMemory = pData + subResourceLayout.Offset;
+         uint8_t* destinationSubResourceMemory = pData + subResourceLayout.Offset;
 
          for (uint64_t sliceIndex = 0; sliceIndex < subResourceDepth; sliceIndex++)
-         { 
-            const DirectX::Image *subImage = imageData->GetImage(mipIndex, arrayIndex, sliceIndex);
-            const uint8_t *sourceSubResourceMemory = subImage->pixels;
+         {
+            const DirectX::Image* subImage = imageData->GetImage(mipIndex, arrayIndex, sliceIndex);
+            const uint8_t* sourceSubResourceMemory = subImage->pixels;
 
             for (uint64_t height = 0; height < subResourceHeight; height++)
             {
@@ -223,8 +222,6 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
          }
       }
    }
-   //m_commandList->CopyBufferRegion(
-   //   m_textureBuffers[slot].Get(), 0, m_textureBufferUploadHeaps[slot].Get(), pLayouts[0].Offset, pLayouts[0].Footprint.Width);
 
    for (UINT i = 0; i < textureMetaData.mipLevels; ++i)
    {
@@ -233,10 +230,7 @@ void TextureMipmap::createTextureMipmap(const wchar_t *path, int slot, int rootP
       m_commandList->CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
    }
 
-
    HeapFree(GetProcessHeap(), 0, pMem);
-
-
 }
 
 //void TextureMipmap::createTextureMipmap(std::string path, int slot, int rootPara)

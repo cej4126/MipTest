@@ -64,7 +64,7 @@ Window::~Window()
    DestroyWindow(m_hWnd);
 }
 
-Graphics &Window::gfx()
+Graphics& Window::gfx()
 {
    if (!pGfx)
    {
@@ -111,8 +111,8 @@ LRESULT CALLBACK Window::HandleMessageInit(HWND hwnd, UINT msg, WPARAM wParam, L
 {
    if (msg == WM_CREATE)
    {
-      const CREATESTRUCT *const pStruct = reinterpret_cast<CREATESTRUCT *>(lParam);
-      Window *const pWindow = static_cast<Window *>(pStruct->lpCreateParams);
+      const CREATESTRUCT* const pStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
+      Window* const pWindow = static_cast<Window*>(pStruct->lpCreateParams);
       SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
       SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::HandleMessageMain));
    }
@@ -121,7 +121,7 @@ LRESULT CALLBACK Window::HandleMessageInit(HWND hwnd, UINT msg, WPARAM wParam, L
 
 LRESULT CALLBACK Window::HandleMessageMain(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-   Window *const pWindow = reinterpret_cast<Window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+   Window* const pWindow = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
    return pWindow->HandleMsg(hwnd, msg, wParam, lParam);
 }
 
@@ -137,7 +137,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
    bool imguiActive = false;
    if (m_graphicActive)
    {
-      const auto &imio = ImGui::GetIO();
+      const auto& imio = ImGui::GetIO();
       switch (msg)
       {
          case WM_KEYDOWN:
@@ -208,7 +208,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
          case WM_KEYUP:
          case WM_SYSKEYUP:
-            m_input.onKeyBoardRelease(static_cast<unsigned char>(wParam));
+            m_input.onKeyBoardReleased(static_cast<unsigned char>(wParam));
             break;
          case WM_CHAR:
             m_input.onChar(static_cast<unsigned char>(wParam));
@@ -321,7 +321,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                break;
             }
             // process the raw input data
-            auto &rawInput = reinterpret_cast<const RAWINPUT &>(*m_rawBuffer.data());
+            auto& rawInput = reinterpret_cast<const RAWINPUT&>(*m_rawBuffer.data());
             if (rawInput.header.dwType == RIM_TYPEMOUSE &&
                (rawInput.data.mouse.lLastX != 0 || rawInput.data.mouse.lLastY != 0))
             {
@@ -342,7 +342,7 @@ void Window::confineCursor() noexcept
 {
    RECT rect;
    GetClientRect(m_hWnd, &rect);
-   MapWindowPoints(m_hWnd, nullptr, reinterpret_cast<POINT *>(&rect), 2);
+   MapWindowPoints(m_hWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2);
    ClipCursor(&rect);
 }
 

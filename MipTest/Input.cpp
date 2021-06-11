@@ -29,9 +29,9 @@ void Input::onKeyBoardPressed(unsigned char code) noexcept
    trimKeyBoardBuffer();
 }
 
-void Input::onKeyBoardRelease(unsigned char code) noexcept
+void Input::onKeyBoardReleased(unsigned char code) noexcept
 {
-   m_keyStates[code] = true;
+   m_keyStates[code] = false;
    m_keyBoardBuffer.push(Input::KeyBoardEvent(Input::KeyBoardEvent::KeyBoardType::KeyBoardRelease, code));
    trimKeyBoardBuffer();
 }

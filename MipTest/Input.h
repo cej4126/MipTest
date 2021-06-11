@@ -86,7 +86,10 @@ public:
    bool isRawEnabled() noexcept { return m_rawEnable; }
 
    // Ket Functions
-   bool isKeyPressed(unsigned char code) const noexcept { return m_keyStates[code]; }
+   bool isKeyPressed(unsigned char code) const noexcept
+   {
+      return m_keyStates[code];
+   }
    std::optional<KeyBoardEvent> readKey() noexcept;
 
    void enableAutoRepeat() noexcept { m_autoRepeatEnable = true; }
@@ -95,7 +98,7 @@ public:
 
 private:
    void onKeyBoardPressed(unsigned char code) noexcept;
-   void onKeyBoardRelease(unsigned char code) noexcept;
+   void onKeyBoardReleased(unsigned char code) noexcept;
    void onChar(char character) noexcept;
    void clear() noexcept;
    void onMouseMove(int x, int y) noexcept;

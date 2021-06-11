@@ -2,9 +2,18 @@
 
 void DrawFunction::draw() const noexcept
 {
-   for (auto &b : binds)
+   for (auto& b : binds)
    {
       b->draw();
+   }
+}
+
+
+void DrawFunction::freeUpload() const noexcept
+{
+   for (auto& b : binds)
+   {
+      b->freeUpload();
    }
 }
 

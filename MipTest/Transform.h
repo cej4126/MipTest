@@ -7,16 +7,18 @@
 class Transform : public Bind::Bindable
 {
 public:
-   Transform(Graphics &gfx, const DrawFunction &parent, int rootVS = 0, int rootPS = -1);
+   Transform(Graphics& gfx, const DrawFunction& parent, int rootVS = 0, int rootPS = -1);
    void draw() noexcept override;
+   void freeUpload() noexcept override {};
+
    void setIndices(int index, UINT start, UINT count);
 
 private:
-   Graphics &m_gfx;
-   ID3D12Device *m_device;
-   ID3D12GraphicsCommandList *m_commandList;
+   Graphics& m_gfx;
+   ID3D12Device* m_device;
+   ID3D12GraphicsCommandList* m_commandList;
 
-   const DrawFunction &m_parentTransform;
+   const DrawFunction& m_parentTransform;
    UINT m_indicesStart = 0;
    UINT m_indicesCount = 0;
 

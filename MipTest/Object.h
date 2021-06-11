@@ -7,15 +7,17 @@
 class Object : public Bind::Bindable
 {
 public:
-   Object(Graphics &gfx, std::string tag);
+   Object(Graphics& gfx, std::string tag);
 
-   static std::shared_ptr<Object> resolve(Graphics &gfx, const std::string &tag);
-   static std::string generateUID(const std::string &tag);
+   static std::shared_ptr<Object> resolve(Graphics& gfx, const std::string& tag);
+   static std::string generateUID(const std::string& tag);
    std::string getUID() const noexcept override;
 
    void draw() noexcept override;
+   void freeUpload() noexcept override {};
+
    void createRootSignature();
-   void createShader(const std::wstring &vertexPath, const std::wstring &pixelPath);
+   void createShader(const std::wstring& vertexPath, const std::wstring& pixelPath);
    void createPipeLineState(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology);
 
    void loadVerticsBuffer(const std::vector<Shape::VertexTexture> vertices);
@@ -29,9 +31,9 @@ private:
    //   RootParameterCount
    //};
 
-   Graphics &m_gfx;
-   ID3D12Device *m_device;
-   ID3D12GraphicsCommandList *m_commandList;
+   Graphics& m_gfx;
+   ID3D12Device* m_device;
+   ID3D12GraphicsCommandList* m_commandList;
    ComPtr<ID3D12RootSignature> m_rootSignature;
    ComPtr<ID3DBlob>m_vertexShaderBlob;
    ComPtr<ID3DBlob>m_pixelShaderBlob;
